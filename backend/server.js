@@ -15,58 +15,51 @@ const app = express();
 // ============================================================
 const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || "safeguard_emergency_system_master_key_2024";
-
-// FIX: Define MONGO_URI so the server doesn't crash
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/safeguard';
 
-// Initialize Twilio Client
+// Initialize Twilio
 let twilioClient;
 if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN) {
     twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+    console.log("🛡️  Communication Shield: Twilio API Active");
 }
 
 // ============================================================
-// 2. GLOBAL SECURITY MIDDLEWARE (STABLE & CLEAN)
+// 2. GLOBAL SECURITY MIDDLEWARE
 // ============================================================
 app.use(helmet()); 
 app.use(cors({
-    origin: '*', 
+    origin: '*', // Allows all devices (Netlify, Mobile, Laptop) to connect
     methods: ['GET', 'POST', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Emergency-Signal']
 }));
 
+// Body parser with size limit to prevent Payload Attacks
 app.use(express.json({ limit: '10kb' })); 
 
 /**
- * 🛡️ MANUAL SECURITY SHIELD 
- * Replaces express-mongo-sanitize to avoid Render "Getter" errors.
+ * 🛡️ RECURSIVE SECURITY SHIELD 
+ * This manually removes NoSQL injection ($) and XSS (<script>) 
+ * without triggering the "Getter" error on Render.
  */
-const sanitizeData = (obj) => {
+const cleanData = (obj) => {
     if (obj instanceof Object) {
         for (let key in obj) {
             if (key.startsWith('$')) {
                 delete obj[key];
+            } else if (typeof obj[key] === 'string') {
+                obj[key] = obj[key].replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gim, "");
             } else {
-                sanitizeData(obj[key]);
+                cleanData(obj[key]);
             }
         }
     }
 };
 
 app.use((req, res, next) => {
-    sanitizeData(req.body);
-    sanitizeData(req.params);
-    sanitizeData(req.query);
-    next();
-});
-
-// Manual XSS Filter
-app.use((req, res, next) => {
-    if (req.body) {
-        let str = JSON.stringify(req.body);
-        str = str.replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gim, "");
-        req.body = JSON.parse(str);
-    }
+    cleanData(req.body);
+    cleanData(req.query);
+    cleanData(req.params);
     next();
 });
 
@@ -75,20 +68,21 @@ app.use((req, res, next) => {
 // ============================================================
 mongoose.connect(MONGO_URI)
     .then(() => {
-        const dbSource = process.env.MONGO_URI ? "MongoDB Atlas (Cloud)" : "Local Laptop Database";
+        const dbSource = process.env.MONGO_URI ? "Cloud Atlas" : "Local Database";
         console.log(`✅ Secure Shield Database: CONNECTED (${dbSource})`);
     })
-    .catch(err => console.log("❌ Shield Database Connection Error:", err));
+    .catch(err => {
+        console.log("❌ Shield Database Connection Error:", err.message);
+    });
 
 // ============================================================
-// 4. ENHANCED USER SCHEMA
+// 4. USER SCHEMA & MODEL
 // ============================================================
 const userSchema = new mongoose.Schema({
     fullName: { type: String, required: true, trim: true },
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
     phone: { type: String, required: true },
     password: { type: String, required: true, select: false }, 
-    
     emergencyContacts: [{
         name: String,
         phone: String,
@@ -97,7 +91,6 @@ const userSchema = new mongoose.Schema({
         isVerified: { type: Boolean, default: false },
         permissions: { canViewLiveLocation: { type: Boolean, default: true } }
     }],
-
     activeSOS: { type: Boolean, default: false },
     lastLocation: { lat: Number, lng: Number, accuracy: Number, timestamp: Date },
     auditLog: [{ action: String, timestamp: { type: Date, default: Date.now }, ip: String }]
@@ -106,49 +99,62 @@ const userSchema = new mongoose.Schema({
 const User = mongoose.model('User', userSchema);
 
 // ============================================================
-// 5. AUTHENTICATION (Register/Login)
+// 5. ESSENTIAL SYSTEM ROUTES
+// ============================================================
+
+// ROOT ROUTE: Fixes "Cannot GET /"
+app.get('/', (req, res) => {
+    res.status(200).send(`
+        <div style="font-family: sans-serif; text-align: center; padding-top: 100px; background: #0f1115; color: white; height: 100vh;">
+            <h1 style="color: #ff4b5c; font-size: 3rem;">🛡️ SafeGuard</h1>
+            <p style="font-size: 1.2rem; opacity: 0.8;">Secure Emergency Response Server is LIVE</p>
+            <div style="margin-top: 20px; padding: 10px; background: rgba(255,255,255,0.05); display: inline-block; border-radius: 10px;">
+                Status: <span style="color: #00ff88;">Ready for Requests</span>
+            </div>
+        </div>
+    `);
+});
+
+// HEALTH CHECK: For Render monitoring
+app.get('/api/health', (req, res) => {
+    res.status(200).json({ status: "Live", db: mongoose.connection.readyState === 1 ? "Connected" : "Disconnected" });
+});
+
+// ============================================================
+// 6. AUTHENTICATION (Register/Login)
 // ============================================================
 
 app.post('/api/register', async (req, res) => {
     try {
         const { fullName, email, password, phone } = req.body;
         const exists = await User.findOne({ email: email.toLowerCase() });
-        if (exists) return res.status(400).json({ error: "Account already exists." });
+        if (exists) return res.status(400).json({ error: "Email already registered." });
 
         const hashedPassword = await bcrypt.hash(password, 12);
         const newUser = new User({ fullName, email, password: hashedPassword, phone });
         await newUser.save();
-        
-        res.status(201).json({ message: "Registration Successful" });
+        res.status(201).json({ message: "Account Created" });
     } catch (error) {
-        res.status(500).json({ error: "Signup system error." });
+        res.status(500).json({ error: "Registration failed." });
     }
 });
 
 app.post('/api/login', async (req, res) => {
     try {
         const { email, password } = req.body;
-        if (!email || !password) return res.status(400).json({ error: "Missing fields" });
-
         const user = await User.findOne({ email: email.toLowerCase().trim() }).select('+password');
-
         if (!user || !(await bcrypt.compare(password, user.password))) {
-            return res.status(401).json({ error: "Invalid credentials." });
+            return res.status(401).json({ error: "Invalid email or password." });
         }
-
         const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '12h' });
-
-        res.json({ 
-            token, 
-            user: { fullName: user.fullName, email: user.email, id: user._id } 
-        });
+        res.json({ token, user: { fullName: user.fullName, email: user.email, id: user._id } });
     } catch (error) {
-        res.status(500).json({ error: "Login system failure." });
+        res.status(500).json({ error: "Login failed." });
     }
 });
 
 // ============================================================
-// 6. GUARDIAN MANAGEMENT
+// 7. GUARDIAN MANAGEMENT
 // ============================================================
 
 app.get('/api/user/contacts', async (req, res) => {
@@ -158,7 +164,7 @@ app.get('/api/user/contacts', async (req, res) => {
         const user = await User.findById(decoded.id);
         res.json(user.emergencyContacts);
     } catch (error) {
-        res.status(401).json({ error: "Unauthorized access." });
+        res.status(401).json({ error: "Unauthorized" });
     }
 });
 
@@ -167,15 +173,13 @@ app.post('/api/user/contacts', async (req, res) => {
         const { name, phone, relationship, priority, permissions } = req.body;
         const token = req.headers.authorization?.split(' ')[1];
         const decoded = jwt.verify(token, JWT_SECRET);
-        
         const user = await User.findById(decoded.id);
-        if (user.emergencyContacts.length >= 5) return res.status(400).json({ error: "Circle full (Max 5)" });
-
+        if (user.emergencyContacts.length >= 5) return res.status(400).json({ error: "Circle Full" });
         user.emergencyContacts.push({ name, phone, relationship, priority, permissions });
         await user.save();
-        res.status(201).json({ message: "Guardian added to secure circle." });
+        res.status(201).json({ message: "Contact Added" });
     } catch (error) {
-        res.status(500).json({ error: "Failed to add contact." });
+        res.status(500).json({ error: "Add failed" });
     }
 });
 
@@ -184,14 +188,14 @@ app.delete('/api/user/contacts/:id', async (req, res) => {
         const token = req.headers.authorization?.split(' ')[1];
         const decoded = jwt.verify(token, JWT_SECRET);
         await User.findByIdAndUpdate(decoded.id, { $pull: { emergencyContacts: { _id: req.params.id } } });
-        res.json({ message: "Guardian removed safely." });
+        res.json({ message: "Deleted" });
     } catch (error) {
-        res.status(500).json({ error: "Delete failed." });
+        res.status(500).json({ error: "Delete failed" });
     }
 });
 
 // ============================================================
-// 7. SECURE SOS DISPATCH
+// 8. SECURE SOS DISPATCH
 // ============================================================
 const sosLimiter = rateLimit({ windowMs: 60000, max: 3 });
 
@@ -202,60 +206,42 @@ app.post('/api/sos/trigger', sosLimiter, async (req, res) => {
         const decoded = jwt.verify(token, JWT_SECRET);
         const user = await User.findById(decoded.id);
 
-        if (!user || user.emergencyContacts.length === 0) {
-            return res.status(400).json({ error: "Guardian Circle is empty." });
-        }
+        if (!user || user.emergencyContacts.length === 0) return res.status(400).json({ error: "No guardians." });
 
         const mapLink = `https://www.google.com/maps?q=${location.lat},${location.lng}`;
-        
         user.activeSOS = true;
         user.lastLocation = { ...location, accuracy, timestamp: timestamp || new Date() };
         user.auditLog.push({ action: "SOS_TRIGGERED", ip: req.ip });
         await user.save();
 
-        const sortedGuardians = user.emergencyContacts.sort((a, b) => a.priority - b.priority);
+        console.log(`🚨 ALERT: ${user.fullName} is in danger!`);
 
+        const sortedGuardians = user.emergencyContacts.sort((a, b) => a.priority - b.priority);
         if (twilioClient) {
-            sortedGuardians.forEach(async (guardian) => {
+            sortedGuardians.forEach(async (g) => {
                 try {
-                    if(guardian.priority === 1) {
+                    if(g.priority === 1) {
                         await twilioClient.calls.create({
-                            twiml: `<Response><Say voice="alice">Emergency alert for ${user.fullName}. They are in trouble. A location link has been sent to your phone.</Say></Response>`,
-                            to: guardian.phone,
-                            from: process.env.TWILIO_PHONE_NUMBER
+                            twiml: `<Response><Say voice="alice">Emergency alert for ${user.fullName}. Link sent to phone.</Say></Response>`,
+                            to: g.phone, from: process.env.TWILIO_PHONE_NUMBER
                         });
                     }
                     await twilioClient.messages.create({
-                        body: `🚨 SOS from ${user.fullName}: ${note || 'Needs help!'}. Track Live: ${mapLink}`,
-                        to: guardian.phone,
-                        from: process.env.TWILIO_PHONE_NUMBER
+                        body: `🚨 SOS from ${user.fullName}: ${note || 'Help!'}. Track: ${mapLink}`,
+                        to: g.phone, from: process.env.TWILIO_PHONE_NUMBER
                     });
-                } catch (e) { console.error(`Twilio error for ${guardian.name}:`, e.message); }
+                } catch (e) { console.error("Twilio error", e.message); }
             });
-        } else {
-            sortedGuardians.forEach(g => console.log(`[SIMULATED SMS] To: ${g.name} -> HELP AT: ${mapLink}`));
         }
-
         res.json({ success: true, contactsNotified: user.emergencyContacts.length });
     } catch (error) {
-        res.status(401).json({ error: "Emergency system failure." });
+        res.status(401).json({ error: "SOS Error" });
     }
 });
 
 // ============================================================
-// 8. START SERVER
+// 9. START SERVER
 // ============================================================
-
-app.get('/', (req, res) => {
-    res.send(`
-        <div style="font-family: sans-serif; text-align: center; padding-top: 50px;">
-            <h1 style="color: #ff4b5c;">🛡️ SafeGuard Security Server is LIVE</h1>
-            <p>The backend is successfully connected to MongoDB Atlas.</p>
-            <p style="color: #666;">API Endpoints are active at /api/...</p>
-        </div>
-    `);
-});
 app.listen(PORT, () => {
     console.log(`🚀 SafeGuard Shield Active on Port ${PORT}`);
-    console.log(`🛡️  Advanced API Protections: ENABLED`);
 });
