@@ -4,51 +4,63 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const twilio = require('twilio');
-const mongoSanitize = require('express-mongo-sanitize');
+const rateLimit = require('express-rate-limit');
 
 const app = express();
 
 // ============================================================
-// 1. GLOBAL CONFIG & SECURITY CONSTANTS
-// ============================================================
-const PORT = process.env.PORT || 3000;
-const JWT_SECRET = process.env.JWT_SECRET || "safeguard_emergency_system_master_key_2024";
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/safeguard';
-
-// 📱 TWILIO INITIALIZATION (ADDED BACK)
-let twilioClient;
-if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN) {
-    twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
-    console.log("🛡️  Communication Shield: Twilio API Active");
-} else {
-    console.log("⚠️  Communication Shield: Twilio keys missing (Terminal only mode)");
-}
-
-// ============================================================
-// 2. GLOBAL SECURITY MIDDLEWARE (FIXED & STABLE)
+// 1. GLOBAL SECURITY MIDDLEWARE (MANUAL SHIELD)
 // ============================================================
 app.use(helmet()); 
-app.use(cors({
-    origin: '*', 
-    methods: ['GET', 'POST', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Emergency-Signal']
-}));
+app.use(cors({ origin: '*' })); 
+app.use(express.json({ limit: '10kb' })); 
 
+// 🛡️ MANUAL DATA SANITIZER (Replaces express-mongo-sanitize)
+const sanitize = (obj) => {
+    if (obj instanceof Object) {
+        for (let key in obj) {
+            if (key.startsWith('$')) delete obj[key];
+            else sanitize(obj[key]);
+        }
+    }
+};
+
+app.use((req, res, next) => {
+    sanitize(req.body);
+    sanitize(req.params);
+    sanitize(req.query);
+    next();
+});
+
+// 🛡️ MANUAL XSS FILTER (Replaces xss-clean)
+app.use((req, res, next) => {
+    if (req.body) {
+        let str = JSON.stringify(req.body);
+        str = str.replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gim, "");
+        req.body = JSON.parse(str);
+    }
+    next();
+});
+
+// ============================================================
+// 2. GLOBAL SECURITY MIDDLEWARE (STABLE VERSION)
+// ============================================================
+app.use(helmet()); 
+app.use(cors({ origin: '*' })); 
 app.use(express.json({ limit: '10kb' })); 
 
 /**
- * 🛡️ CUSTOM SECURITY SHIELD (Replaces express-mongo-sanitize)
- * Recursively removes any keys starting with '$' to prevent NoSQL Injection
- * This version is safe for Render and won't cause "Getter" errors.
+ * 🛡️ MANUAL SECURITY SHIELD 
+ * This does exactly what express-mongo-sanitize did, but it is 
+ * safe for Render and won't cause "Getter" errors.
  */
 const sanitizeData = (obj) => {
     if (obj instanceof Object) {
         for (let key in obj) {
             if (key.startsWith('$')) {
-                console.warn(`[Security] Prohibited key dropped: ${key}`);
+                console.warn(`[Security] Dropped prohibited key: ${key}`);
                 delete obj[key];
             } else {
                 sanitizeData(obj[key]);
@@ -61,15 +73,6 @@ app.use((req, res, next) => {
     sanitizeData(req.body);
     sanitizeData(req.params);
     sanitizeData(req.query);
-    next();
-});
-
-// Outdated/Buggy XSS library check - if you have app.use(xss()), replace it with this:
-app.use((req, res, next) => {
-    if (req.body) {
-        const stringified = JSON.stringify(req.body).replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gim, "");
-        req.body = JSON.parse(stringified);
-    }
     next();
 });
 
