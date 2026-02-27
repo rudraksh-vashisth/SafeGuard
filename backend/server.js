@@ -7,6 +7,7 @@ const jwt = require('jsonwebtoken');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const twilio = require('twilio');
+const mongoSanitize = require('express-mongo-sanitize');
 
 const app = express();
 
@@ -14,35 +15,39 @@ const app = express();
 // 1. GLOBAL CONFIG & SECURITY CONSTANTS
 // ============================================================
 const PORT = process.env.PORT || 3000;
-// CRITICAL: Fallback prevents server crash if .env is missing
 const JWT_SECRET = process.env.JWT_SECRET || "safeguard_emergency_system_master_key_2024";
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/safeguard';
 
-// Initialize Twilio Client (Safe handling if keys are missing)
+// 📱 TWILIO INITIALIZATION (ADDED BACK)
 let twilioClient;
 if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN) {
     twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+    console.log("🛡️  Communication Shield: Twilio API Active");
+} else {
+    console.log("⚠️  Communication Shield: Twilio keys missing (Terminal only mode)");
 }
 
 // ============================================================
 // 2. GLOBAL SECURITY MIDDLEWARE
 // ============================================================
-app.use(helmet()); // Set protective HTTP headers
+app.use(helmet()); 
 
 app.use(cors({
-    origin: '*', // For production, replace '*' with your specific Netlify/Frontend URL
+    origin: '*', 
     methods: ['GET', 'POST', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Emergency-Signal']
 }));
 
-app.use(express.json({ limit: '10kb' })); // Prevents large payload (DDoS) attacks
+app.use(express.json({ limit: '10kb' })); 
 
-// 🛡️ MANUAL SECURITY SHIELD (Prevents NoSQL Injection without "Getter" errors)
+// 🛡️ NO-SQL INJECTION PROTECTION (Fixed to prevent "getter" error)
+app.use(mongoSanitize({ replaceWith: '_' }));
+
 app.use((req, res, next) => {
     const sanitize = (obj) => {
         if (obj instanceof Object) {
             for (let key in obj) {
                 if (key.startsWith('$')) {
-                    console.warn(`[Security] Prohibited key dropped: ${key}`);
                     delete obj[key];
                 } else {
                     sanitize(obj[key]);
@@ -59,20 +64,22 @@ app.use((req, res, next) => {
 // ============================================================
 // 3. DATABASE CONNECTION
 // ============================================================
-mongoose.connect('mongodb://127.0.0.1:27017/safeguard')
-    .then(() => console.log("✅ Secure Shield Database: CONNECTED"))
+mongoose.connect(MONGO_URI)
+    .then(() => {
+        const dbSource = process.env.MONGO_URI ? "MongoDB Atlas (Cloud)" : "Local Laptop Database";
+        console.log(`✅ Secure Shield Database: CONNECTED (${dbSource})`);
+    })
     .catch(err => console.log("❌ Shield Database Connection Error:", err));
 
 // ============================================================
-// 4. ENHANCED USER SCHEMA (Government/Professional Ready)
+// 4. ENHANCED USER SCHEMA
 // ============================================================
 const userSchema = new mongoose.Schema({
     fullName: { type: String, required: true, trim: true },
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
     phone: { type: String, required: true },
-    password: { type: String, required: true, select: false }, // Password hidden from queries
+    password: { type: String, required: true, select: false }, 
     
-    // Guardian Circle Structure
     emergencyContacts: [{
         name: String,
         phone: String,
@@ -114,7 +121,6 @@ app.post('/api/login', async (req, res) => {
         const { email, password } = req.body;
         if (!email || !password) return res.status(400).json({ error: "Missing fields" });
 
-        // Normalize email and explicitly select the hidden password field
         const user = await User.findOne({ email: email.toLowerCase().trim() }).select('+password');
 
         if (!user || !(await bcrypt.compare(password, user.password))) {
@@ -177,7 +183,7 @@ app.delete('/api/user/contacts/:id', async (req, res) => {
 });
 
 // ============================================================
-// 7. SECURE SOS DISPATCH (Priority & Twilio Integration)
+// 7. SECURE SOS DISPATCH (Twilio Enabled)
 // ============================================================
 const sosLimiter = rateLimit({ windowMs: 60000, max: 3 });
 
@@ -194,21 +200,19 @@ app.post('/api/sos/trigger', sosLimiter, async (req, res) => {
 
         const mapLink = `https://www.google.com/maps?q=${location.lat},${location.lng}`;
         
-        // State Update & Audit Logging
         user.activeSOS = true;
         user.lastLocation = { ...location, accuracy, timestamp: timestamp || new Date() };
         user.auditLog.push({ action: "SOS_TRIGGERED", ip: req.ip });
         await user.save();
 
-        console.log(`\n🚨 CRITICAL ALERT: ${user.fullName.toUpperCase()} is in danger!`);
+        console.log(`\n🚨 ALERT: ${user.fullName.toUpperCase()} is in danger!`);
 
-        // ESCALATION LOGIC: Notify by priority
         const sortedGuardians = user.emergencyContacts.sort((a, b) => a.priority - b.priority);
 
         if (twilioClient) {
             sortedGuardians.forEach(async (guardian) => {
                 try {
-                    // Send Professional Voice Call to Primary Guardian
+                    // Call Priority 1 Guardian
                     if(guardian.priority === 1) {
                         await twilioClient.calls.create({
                             twiml: `<Response><Say voice="alice">Emergency alert for ${user.fullName}. They are in trouble. A location link has been sent to your phone.</Say></Response>`,
@@ -216,21 +220,19 @@ app.post('/api/sos/trigger', sosLimiter, async (req, res) => {
                             from: process.env.TWILIO_PHONE_NUMBER
                         });
                     }
-
                     // Send SMS to all
                     await twilioClient.messages.create({
                         body: `🚨 SOS from ${user.fullName}: ${note || 'Needs help!'}. Track Live: ${mapLink}`,
                         to: guardian.phone,
                         from: process.env.TWILIO_PHONE_NUMBER
                     });
-                } catch (e) { console.error(`Twilio failed for ${guardian.name}:`, e.message); }
+                } catch (e) { console.error(`Twilio error for ${guardian.name}:`, e.message); }
             });
         } else {
-            console.log("⚠️ Twilio Keys missing. Logging alert to terminal instead.");
             sortedGuardians.forEach(g => console.log(`[SIMULATED SMS] To: ${g.name} -> HELP AT: ${mapLink}`));
         }
 
-        res.json({ success: true, message: "Emergency signals broadcasted.", contactsNotified: user.emergencyContacts.length });
+        res.json({ success: true, contactsNotified: user.emergencyContacts.length });
     } catch (error) {
         res.status(401).json({ error: "Emergency system failure." });
     }
