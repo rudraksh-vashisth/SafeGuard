@@ -5,14 +5,19 @@
  */
 
 // Initialize Socket.io (Ensure the Socket.io script is included in your HTML)
-const socketInstance = typeof io !== 'undefined' ? io('http://localhost:3000') : null;
+// 1. SET THE BASE URL (Replace this with your specific Render URL)
+const BASE_URL = 'https://safeguard-tce4.onrender.com';
+
+// 2. INITIALIZE SOCKET (Point it to the Render Server, not localhost)
+const socketInstance = typeof io !== 'undefined' ? io(BASE_URL) : null;
 
 const EmergencySystem = {
-    API_URL: 'https://safeguard-tce4.onrender.com/api',
+    // 3. SET THE API URL
+    API_URL: `${BASE_URL}/api`,
     socket: socketInstance,
     alarmInstance: null,
     isProcessing: false,
-    watchId: null, // Critical for stopping the live stream
+    watchId: null, 
 
     // 1. Get high-accuracy GPS coordinates
     getCurrentLocation: () => {
