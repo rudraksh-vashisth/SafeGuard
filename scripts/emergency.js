@@ -8,7 +8,7 @@
 const socketInstance = typeof io !== 'undefined' ? io('http://localhost:3000') : null;
 
 const EmergencySystem = {
-    API_URL: 'http://localhost:3000/api',
+    API_URL: 'https://safeguard-tce4.onrender.com/api',
     socket: socketInstance,
     alarmInstance: null,
     isProcessing: false,

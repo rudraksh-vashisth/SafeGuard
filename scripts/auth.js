@@ -3,7 +3,7 @@
  * Handles: Login, Signup, International Phone Masking, and Security Constraints
  */
 
-const API_URL = 'http://localhost:3000/api'; // Ensure there is no '/' at the end
+const API_URL = "https://safeguard-tce4.onrender.com/api"; // Ensure there is no '/' at the end
 
 document.addEventListener('DOMContentLoaded', () => {
     // UI Element Selectors
