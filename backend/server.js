@@ -245,6 +245,16 @@ app.post('/api/sos/trigger', sosLimiter, async (req, res) => {
 // ============================================================
 // 8. START SERVER
 // ============================================================
+
+app.get('/', (req, res) => {
+    res.send(`
+        <div style="font-family: sans-serif; text-align: center; padding-top: 50px;">
+            <h1 style="color: #ff4b5c;">🛡️ SafeGuard Security Server is LIVE</h1>
+            <p>The backend is successfully connected to MongoDB Atlas.</p>
+            <p style="color: #666;">API Endpoints are active at /api/...</p>
+        </div>
+    `);
+});
 app.listen(PORT, () => {
     console.log(`🚀 SafeGuard Shield Active on Port ${PORT}`);
     console.log(`🛡️  Advanced API Protections: ENABLED`);

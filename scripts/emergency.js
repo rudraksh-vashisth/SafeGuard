@@ -1,28 +1,26 @@
 /**
  * SafeGuard Emergency Response System
  * Professional Grade SOS Logic: Geolocation, Encrypted API Triggers, 
- * Acoustic Alarms, and Real-time Geostreaming.
+ * Acoustic Alarms, and Real-time Geostreaming via Socket.io
  */
 
-// Initialize Socket.io (Ensure the Socket.io script is included in your HTML)
-// 1. SET THE BASE URL (Replace this with your specific Render URL)
+// 1. SET THE BASE URL (Linked to your live Render Backend)
 const BASE_URL = 'https://safeguard-tce4.onrender.com';
 
-// 2. INITIALIZE SOCKET (Point it to the Render Server, not localhost)
+// 2. INITIALIZE SOCKET (Points to the Render Server)
 const socketInstance = typeof io !== 'undefined' ? io(BASE_URL) : null;
 
 const EmergencySystem = {
-    // 3. SET THE API URL
     API_URL: `${BASE_URL}/api`,
     socket: socketInstance,
     alarmInstance: null,
     isProcessing: false,
-    watchId: null, 
+    watchId: null, // Critical for stopping the live stream
 
     // 1. Get high-accuracy GPS coordinates
     getCurrentLocation: () => {
         return new Promise((resolve, reject) => {
-            if (!navigator.geolocation) return reject("GPS not supported");
+            if (!navigator.geolocation) return reject("GPS not supported by browser.");
 
             navigator.geolocation.getCurrentPosition(
                 (pos) => resolve({
@@ -43,8 +41,9 @@ const EmergencySystem = {
                 EmergencySystem.alarmInstance = new Audio('../assets/sounds/alarm.mp3');
                 EmergencySystem.alarmInstance.loop = true;
             }
-            EmergencySystem.alarmInstance.play().catch(() => {});
+            EmergencySystem.alarmInstance.play().catch(() => console.warn("Audio blocked by browser."));
             
+            // Mobile Vibration
             if ("vibrate" in navigator) navigator.vibrate([500, 200, 500]);
         } else {
             if (EmergencySystem.alarmInstance) {
@@ -55,11 +54,11 @@ const EmergencySystem = {
         }
     },
 
-    // 3. NEW: Real-time Location Streaming
-    // This function keeps sending the location to guardians as the user moves
+    // 3. Real-time Location Streaming (Socket.io)
     startLiveStream: (userId, userName, emergencyNote) => {
         if ("geolocation" in navigator) {
-            // watchPosition creates a persistent connection to GPS
+            console.log("🛰️ Initializing Real-time Satellite Stream...");
+            
             EmergencySystem.watchId = navigator.geolocation.watchPosition((position) => {
                 const data = {
                     userId: userId,
@@ -71,12 +70,10 @@ const EmergencySystem = {
                     timestamp: new Date()
                 };
                 
-                // Broadcast via Socket.io to the backend
+                // Emit to Render Socket Server
                 if (EmergencySystem.socket) {
                     EmergencySystem.socket.emit('update-location', data);
                 }
-                
-                console.log("🛰️ Streaming Live Location...");
             }, (err) => console.error(err), {
                 enableHighAccuracy: true,
                 maximumAge: 0,
@@ -95,7 +92,7 @@ const EmergencySystem = {
         const user = JSON.parse(localStorage.getItem('currentUser'));
 
         if (!token || !user) {
-            alert("Authentication Error: Please login.");
+            alert("Security Error: Session expired. Please login again.");
             window.location.href = '../index.html';
             return;
         }
@@ -104,10 +101,16 @@ const EmergencySystem = {
         EmergencySystem.updateUIState('sending');
 
         try {
+            // STEP 1: Activate Alarm
             EmergencySystem.toggleAlarm('start');
-            const coords = await EmergencySystem.getCurrentLocation();
-            const noteText = noteField ? noteField.value.substring(0, 200) : "No note provided";
 
+            // STEP 2: Lock GPS Coords
+            const coords = await EmergencySystem.getCurrentLocation();
+            
+            // STEP 3: Get Instructions
+            const noteText = noteField ? noteField.value.trim() : "No additional note.";
+
+            // STEP 4: API Request to Render
             const response = await fetch(`${EmergencySystem.API_URL}/sos/trigger`, {
                 method: 'POST',
                 headers: { 
@@ -128,11 +131,13 @@ const EmergencySystem = {
             if (response.ok) {
                 EmergencySystem.updateUIState('active');
                 
-                // --- ACTIVATE LIVE STREAMING ---
-                // This starts the real-time movement on the Guardian's map
+                // STEP 5: Start Socket Streaming for Guardians
                 EmergencySystem.startLiveStream(user.id || user._id, user.fullName, noteText);
 
-                alert(`🚨 SOS BROADCASTED!\nGuardians notified: ${result.contactsNotified}`);
+                alert(`🚨 SOS BROADCASTED TO RENDER SERVER!\nGuardians notified: ${result.contactsNotified}`);
+                
+                // Automatic Call to Police (Frontend Protocol)
+                window.location.href = "tel:112";
             } else {
                 throw new Error(result.error || "Broadcast Failed");
             }
@@ -146,16 +151,15 @@ const EmergencySystem = {
         }
     },
 
-    // 5. Stop current emergency sequence
+    // 5. Stop SOS Sequence
     stopSOS: () => {
-        if (confirm("Are you safe now? This will stop the alarm and live tracking.")) {
+        if (confirm("CONFIRM SAFETY: Stop alarm and live tracking?")) {
             EmergencySystem.toggleAlarm('stop');
             
-            // --- STOP LIVE STREAMING ---
             if (EmergencySystem.watchId !== null) {
                 navigator.geolocation.clearWatch(EmergencySystem.watchId);
                 EmergencySystem.watchId = null;
-                console.log("🛰️ Live Stream Stopped.");
+                console.log("🛰️ Live Stream Terminated.");
             }
 
             EmergencySystem.updateUIState('idle');
@@ -167,45 +171,28 @@ const EmergencySystem = {
         const sosBtn = document.getElementById('sosBtn');
         if (!sosBtn) return;
 
-        switch (state) {
-            case 'sending':
-                sosBtn.innerText = "WAIT";
-                sosBtn.disabled = true;
-                break;
-            case 'active':
-                sosBtn.innerText = "STOP"; 
-                sosBtn.style.background = "#00ff88"; // Change to green for "Safe"
-                sosBtn.disabled = false;
-                break;
-            case 'idle':
-                sosBtn.innerText = "SOS";
-                sosBtn.style.background = ""; // Restore original red
-                sosBtn.disabled = false;
-                break;
+        if (state === 'sending') {
+            sosBtn.innerText = "WAIT";
+            sosBtn.disabled = true;
+        } else if (state === 'active') {
+            sosBtn.innerText = "STOP"; 
+            sosBtn.style.background = "linear-gradient(to bottom, #10b981, #059669)"; // Green for safe
+            sosBtn.disabled = false;
+        } else {
+            sosBtn.innerText = "SOS";
+            sosBtn.style.background = ""; // Back to red
+            sosBtn.disabled = false;
         }
     }
 };
 
-// --- Initialization & Event Binding ---
+// --- Listeners ---
 document.addEventListener('DOMContentLoaded', () => {
     const sosBtn = document.getElementById('sosBtn');
-    
     if (sosBtn) {
-        sosBtn.addEventListener('click', (e) => {
-            if (sosBtn.innerText === "STOP") {
-                EmergencySystem.stopSOS();
-            } else {
-                if (confirm("🚨 TRIGGER SOS?\nThis will alert your guardians and start live tracking.")) {
-                    EmergencySystem.triggerSOS();
-                }
-            }
+        sosBtn.addEventListener('click', () => {
+            if (sosBtn.innerText === "STOP") EmergencySystem.stopSOS();
+            else EmergencySystem.triggerSOS();
         });
     }
-
-    document.addEventListener('touchstart', () => {
-        if (!EmergencySystem.alarmInstance) {
-            const silent = new Audio();
-            silent.play().catch(()=>{});
-        }
-    }, { once: true });
 });
