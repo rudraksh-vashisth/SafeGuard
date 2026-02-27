@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SafeGuard | Register</title>
+    <link rel="icon" type="image/png" href="../assets/images/Logo.png">
+
+    <!-- 1. External Libraries (Cleaned to one version 19.2.19 for Search support) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/19.2.19/css/intlTelInput.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <!-- 2. CSS Files -->
+    <link rel="stylesheet" href="../styles/main.css">
+    <link rel="stylesheet" href="../styles/components.css">
+    <link rel="stylesheet" href="../styles/animations.css">
+</head>
+
+<body>
+
+    <!-- SPLASH SCREEN -->
+    <div id="splash-screen">
+        <div class="splash-content">
+            <div class="logo-circle">
+                <div class="inner-pulse"></div>
+                <img src="../assets/images/Logo.png" alt="SafeGuard Logo">
+            </div>
+            <h2 class="splash-logo-text">WOMEN SAFEGUARD</h2>
+        </div>
+    </div>
+
+    <!-- MAIN AUTH WRAPPER (Starts hidden for animation) -->
+    <div class="auth-wrapper hidden" id="main-content">
+
+        <div class="bg-blur-circle circle-1"></div>
+        <div class="bg-blur-circle circle-2"></div>
+
+        <div class="auth-card">
+            <!-- Theme Toggle -->
+            <button id="theme-toggle" class="theme-btn" title="Toggle Light/Dark Mode">
+                <i class="fa-solid fa-moon" id="theme-icon"></i>
+            </button>
+
+            <!-- Header Section -->
+            <div class="header">
+                <div class="logo-area">
+                    <div class="logo-shimmer"></div>
+                    <img src="../assets/images/Logo.png" alt="SafeGuard" class="main-logo">
+                </div>
+                <h1>Join SafeGuard</h1>
+                <p>Create your safety profile</p>
+            </div>
+
+            <!-- Signup Form -->
+            <form id="signupForm">
+                <div class="input-group">
+                    <input type="text" id="fullName" placeholder="Full Name" required>
+                    <input type="email" id="signupEmail" placeholder="Email Address" required>
+
+                    <div class="phone-container">
+                        <input type="tel" id="phone" name="phone" placeholder="Enter your phone number" required>
+                    </div>
+
+                    <div class="password-wrap">
+                        <input type="password" id="signupPassword" placeholder="Create Password" required>
+                        <i class="fa-solid fa-eye-slash toggle-password"></i>
+                    </div>
+
+                    <!-- Wrapped Confirm Password -->
+                    <div class="password-wrap">
+                        <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
+                        <i class="fa-solid fa-eye-slash toggle-password"></i>
+                    </div>
+                    <!-- Add this line below -->
+                    <p class="password-hint">Must include: Uppercase, Number, Special character (e.g., @$!%)</p>
+                </div>
+
+                <button type="submit" class="btn-primary btn-glow">Create Account</button>
+
+                <div class="footer-text">
+                    Already have an account? <a href="../index.html">Login</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 3. Scripts Order is Critical -->
+    <!-- Library JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/19.2.19/js/intlTelInput.min.js"></script>
+
+    <!-- Global Initialization for Phone Input -->
+    <script>
+        let iti; // Declare globally so auth.js can see it
+        document.addEventListener('DOMContentLoaded', () => {
+            const phoneInput = document.querySelector("#phone");
+            iti = window.intlTelInput(phoneInput, {
+                initialCountry: "in",
+                separateDialCode: true,
+                countrySearch: true,
+                useFullscreenPopup: false, // Prevents search bar issue on mobile
+                preferredCountries: ["in", "us", "gb"],
+                utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/19.2.19/js/utils.js",
+            });
+        });
+    </script>
+
+    <!-- UI logic (Hides Splash) and Auth Logic -->
+    <script src="../scripts/ui-controller.js"></script>
+    <script src="../scripts/auth.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,174 @@
+/* ============================================================
+   5. PHONE LIBRARY (ITI) - ULTIMATE THEME INTEGRATION
+   ============================================================ */
+
+/* 1. The Phone Input Field (Overlap Fix) */
+.iti { 
+    width: 100% !important; 
+    position: relative !important; 
+    margin-bottom: 12px !important; 
+    display: block !important;
+}
+
+.iti input { 
+    width: 100% !important;
+    height: 52px !important;
+    padding-left: 85px !important; /* Fixed overlap - text starts after +91 */
+    box-sizing: border-box !important;
+    background: var(--bg-color) !important;
+    color: var(--text-main) !important;
+    border: 1px solid var(--input-border) !important;
+    border-radius: 12px !important;
+}
+
+/* 2. THE DROPDOWN CONTAINER (The main box) */
+.iti__country-list {
+    position: absolute !important;
+    inset-inline: 0 !important;
+    top: calc(100% + 5px) !important;
+    width: 100% !important;
+    max-height: 280px !important;
+    background-color: var(--card-bg) !important;
+    border: 1px solid var(--input-border) !important;
+    border-radius: 16px !important;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6) !important;
+    padding: 0 !important;             /* Removes the white gap at top */
+    overflow-x: hidden !important;
+    z-index: 10000 !important;
+}
+
+/* 3. CRITICAL: Removing the white background from hidden library wrappers */
+.iti__search-container, 
+.iti__dropdown-content {
+    background-color: var(--card-bg) !important;
+    padding: 0 !important;             /* Removes internal white padding */
+    margin: 0 !important;
+    border: none !important;
+}
+
+/* 4. THE SEARCH INPUT (Seamless integration) */
+.iti__search-input {
+    width: 100% !important;
+    height: 48px !important;
+    margin: 0 !important;
+    padding: 0 15px !important;
+    background: var(--bg-color) !important;
+    color: var(--text-main) !important;
+    border: none !important;           /* Kills the sharp rectangular edges */
+    border-bottom: 1px solid var(--input-border) !important; /* Clean divider */
+    border-radius: 0 !important;       /* Sits flush with the top corners */
+    outline: none !important;          /* Kills blue browser outline */
+    box-shadow: none !important;       /* Kills white focus glow */
+    box-sizing: border-box !important;
+    font-size: 15px !important;
+}
+
+/* 5. COUNTRY ITEMS */
+.iti__country { 
+    padding: 12px 15px !important; 
+    display: flex !important; 
+    align-items: center !important;
+    background-color: transparent !important;
+}
+
+.iti__country:hover { 
+    background-color: rgba(255, 255, 255, 0.08) !important; 
+}
+
+.iti__dial-code { 
+    color: var(--text-dim) !important; 
+    margin-left: auto !important; 
+}
+
+/* 6. DARK MINIMALIST SCROLLBAR */
+.iti__country-list::-webkit-scrollbar { width: 4px; }
+.iti__country-list::-webkit-scrollbar-track { background: transparent; }
+.iti__country-list::-webkit-scrollbar-thumb { 
+    background: var(--accent-blue); 
+    border-radius: 10px; 
+}
+
+/* 7. THEME SYNC */
+[data-theme="light"] .iti__country-list,
+[data-theme="light"] .iti__search-container { background-color: #ffffff !important; }
+[data-theme="light"] .iti__search-input { background: #f8fafc !important; color: #000; }
+
+
+/* ============================================================
+   5. PHONE LIBRARY (ITI) & SEARCH - SPACING & DOUBLE FLAG FIX
+   ============================================================ */
+.iti { 
+    width: 100% !important; 
+    display: block !important; 
+    margin-bottom: 15px !important; 
+}
+
+.iti input { 
+    width: 100% !important;
+    height: 52px !important;
+    padding-left: 80px !important; /* Closer gap as requested */
+    background: var(--bg-color) !important;
+    border: 1px solid var(--input-border) !important;
+    border-radius: 12px !important;
+    color: var(--text-main) !important;
+}
+
+/* FIX: Removes the extra spacing and white box above the search bar */
+.iti__search-container {
+    padding: 0 !important;
+    margin: 0 !important;
+    background-color: var(--bg-color) !important;
+    border-bottom: 1px solid var(--input-border) !important;
+}
+
+.iti__search-input {
+    width: 100% !important;
+    height: 48px !important;
+    margin: 0 !important;
+    padding: 0 15px !important;
+    background: var(--bg-color) !important;
+    color: var(--text-main) !important;
+    
+    /* REMOVES THE BLUE/WHITE OUTLINE SHOWN IN SCREENSHOT */
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+}
+
+/* FIX: Ensure the list sits flush against the search bar */
+.iti__country-list {
+    padding-top: 0 !important;
+    background-color: var(--card-bg) !important;
+    border: 1px solid var(--input-border) !important;
+    border-radius: 16px !important;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6) !important;
+}
+
+/* Fix for the internal double-layer white background */
+.iti__dropdown-content {
+    background-color: var(--card-bg) !important;
+    padding: 0 !important;
+}
+
+/* Item Spacing */
+.iti__country { padding: 12px 15px !important; }
+.iti__country:hover { background-color: rgba(255, 255, 255, 0.08) !important; }
+
+/* --- 6. DARK MINIMALIST SCROLLBAR --- */
+.iti__country-list::-webkit-scrollbar { width: 5px; }
+.iti__country-list::-webkit-scrollbar-track { background: transparent; }
+.iti__country-list::-webkit-scrollbar-thumb { 
+    background: var(--accent-blue); 
+    border-radius: 10px; 
+}
+
+/* --- 7. LIGHT MODE CORRECTION --- */
+[data-theme="light"] .iti__country-list,
+[data-theme="light"] .iti__search-container {
+    background-color: #ffffff !important;
+}
+[data-theme="light"] .iti__search-input {
+    background: #f8fafc !important;
+    color: #000000 !important;
+}

@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SafeGuard | Command Center</title>
+    <link rel="icon" type="image/png" href="../assets/images/Logo.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Link your CSS files -->
+    <link rel="stylesheet" href="../styles/main.css">
+    <link rel="stylesheet" href="../styles/components.css">
+    <link rel="stylesheet" href="../styles/dashboard.css">
+    <link rel="stylesheet" href="../styles/animations.css">
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #05060f;
+            color: white;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .mesh-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 0% 0%, #1e1b4b 0%, transparent 50%), radial-gradient(circle at 100% 100%, #450a0a 0%, transparent 50%);
+            z-index: -1;
+            opacity: 0.5;
+        }
+
+        /* Professional pulse for SOS button */
+        .btn-sos-main:hover {
+            box-shadow: 0 0 60px rgba(239, 68, 68, 0.5);
+            transform: scale(1.02);
+        }
+    </style>
+</head>
+
+<body class="pb-32 overflow-x-hidden">
+    <div class="mesh-bg"></div>
+
+    <!-- TOP NAVIGATION BAR -->
+    <nav class="p-6 flex justify-between items-center max-w-7xl mx-auto">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center">
+                <img src="../assets/images/Logo.png" class="w-7 h-7" alt="Logo">
+            </div>
+            <span class="font-bold tracking-widest text-lg">SAFEGUARD</span>
+        </div>
+        <button id="logoutBtn"
+            class="glass w-10 h-10 rounded-full flex items-center justify-center hover:bg-red-500/20 transition-all border-white/10 group">
+            <i class="fa-solid fa-power-off text-sm text-red-500 group-hover:text-white"></i>
+        </button>
+    </nav>
+
+    <main class="dashboard-main px-6 max-w-7xl mx-auto">
+        <!-- 1. Header (Centered Name) -->
+        <header class="flex flex-col items-center justify-center pt-6 mb-8 text-center hero-section">
+            <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight">Hello, <span class="text-blue-400"
+                    id="userNameDisplay">User</span></h1>
+            <div class="flex items-center gap-2 mt-3 opacity-60">
+                <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_10px_#22c55e]"></span>
+                <p class="text-[10px] font-bold uppercase tracking-[0.2em]">Active Shield Protection</p>
+            </div>
+        </header>
+
+        <!-- 2. Main SOS Area -->
+        <section class="flex flex-col items-center justify-center py-4">
+            <div class="relative sos-ring">
+                <div class="absolute inset-0 rounded-full border-4 border-red-500/20 animate-ping"></div>
+                <button id="sosBtn"
+                    class="btn-sos-main w-40 h-40 md:w-48 md:h-48 bg-gradient-to-br from-red-500 to-red-700 rounded-full text-white font-black text-3xl shadow-[0_0_50px_rgba(255,75,92,0.4)] active:scale-90 transition-all border-8 border-white/5">SOS</button>
+            </div>
+            <p class="text-[10px] mt-8 opacity-40 uppercase tracking-[0.3em] font-black">Hold for Emergency</p>
+        </section>
+
+        <!-- ... SOS Button ends here ... -->
+
+        <!-- NEW: EMERGENCY CONTEXT NOTE (REQUIRED FOR emergency.js) -->
+        <section class="max-w-md mx-auto w-full mt-10 px-6 space-y-4 animate-pop-in">
+            <div class="space-y-2">
+                <div class="flex justify-between items-center ml-1">
+                    <label class="text-[10px] font-black opacity-40 tracking-widest uppercase">Emergency Situation
+                        Note</label>
+                    <span class="text-[9px] text-blue-400 font-bold">SENDS WITH SOS</span>
+                </div>
+
+                <!-- THIS ID MUST BE "emergencyNote" -->
+                <textarea id="emergencyNote"
+                    class="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-sm text-white outline-none focus:border-blue-500 transition-all placeholder:text-gray-600 min-h-[100px] resize-none"
+                    placeholder="Ex: I'm in a taxi (Plate: ABC-123), suspicious person following me near the park..."></textarea>
+            </div>
+
+            <!-- QUICK CALL BUTTONS -->
+            <div class="grid grid-cols-2 gap-4">
+                <a href="tel:112"
+                    class="glass p-4 rounded-2xl flex items-center justify-center gap-3 border-red-500/20 hover:bg-red-500/10 transition-all">
+                    <i class="fa-solid fa-headset text-red-500"></i>
+                    <span class="font-bold text-xs uppercase">Police (112)</span>
+                </a>
+                <a href="tel:102"
+                    class="glass p-4 rounded-2xl flex items-center justify-center gap-3 border-blue-500/20 hover:bg-blue-500/10 transition-all">
+                    <i class="fa-solid fa-ambulance text-blue-400"></i>
+                    <span class="font-bold text-xs uppercase">Medical</span>
+                </a>
+            </div>
+        </section>
+
+        <!-- ... Your 3 Feature Bento Grid starts here ... -->
+
+        <!-- 3. Feature Bento Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-12">
+
+            <!-- BLOCK 1: Guardian Circle -->
+            <a href="emergency-contacts.html"
+                class="glass p-6 rounded-[2.5rem] flex flex-col items-start gap-4 hover:bg-white/5 transition-all cursor-pointer border-white/5 group">
+                <div
+                    class="w-12 h-12 bg-blue-500/20 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <i class="fa-solid fa-users-viewfinder text-blue-400 text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg">Guardian Circle</h3>
+                    <p class="text-xs opacity-50 mt-1">Live tracking with 5 trusted contacts.</p>
+                </div>
+            </a>
+
+            <!-- BLOCK 2: Safe Route -->
+            <a href="safe-zones.html"
+                class="glass p-6 rounded-[2.5rem] flex flex-col items-start gap-4 hover:bg-white/5 transition-all cursor-pointer border-white/5 group">
+                <div
+                    class="w-12 h-12 bg-green-500/20 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <i class="fa-solid fa-route text-green-400 text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg">Safe Route</h3>
+                    <p class="text-xs opacity-50 mt-1">AI suggestions for well-lit paths.</p>
+                </div>
+            </a>
+
+            <!-- BLOCK 3: Nearby Help -->
+            <a href="safe-zones.html"
+                class="glass p-6 rounded-[2.5rem] flex flex-col items-start gap-4 hover:bg-white/5 transition-all cursor-pointer border-white/5 group">
+                <div
+                    class="w-12 h-12 bg-purple-500/20 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <i class="fa-solid fa-building-shield text-purple-400 text-xl"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg">Nearby Help</h3>
+                    <p class="text-xs opacity-50 mt-1">Locate police & medical stations.</p>
+                </div>
+            </a>
+
+        </div>
+
+        <!-- 4. DEDICATED VIDEO HUB SECTION -->
+        <section class="video-hub mt-24">
+            <div class="video-section-header">
+                <h2 class="video-category-title"><i class="fa-brands fa-youtube text-red-500 mr-2"></i> Safety Training
+                    Hub</h2>
+                <span class="text-[10px] opacity-40 font-bold uppercase tracking-widest">Global Awareness</span>
+            </div>
+
+            <div class="video-grid-unified mb-16">
+                <!-- Video 1 -->
+                <div class="video-card-premium group">
+                    <div class="iframe-container"><span class="badge-online">ESSENTIAL</span>
+                        <iframe class="w-full h-full" src="https://www.youtube.com/embed/KVpxP3ZZtAc" frameborder="0"
+                            allowfullscreen></iframe>
+                    </div>
+                    <div class="video-card-content">
+                        <h4 class="font-bold text-sm">Basic Self Defense</h4>
+                        <p class="text-[10px] opacity-50 mt-2">Fundamental moves to escape physical grabs.</p>
+                    </div>
+                </div>
+
+                <!-- Video 2 -->
+                <div class="video-card-premium group">
+                    <div class="iframe-container"><span class="badge-online">SITUATIONAL</span>
+                        <iframe class="w-full h-full" src="https://www.youtube.com/embed/-V4vEyhWDZ0" frameborder="0"
+                            allowfullscreen></iframe>
+                    </div>
+                    <div class="video-card-content">
+                        <h4 class="font-bold text-sm">Threat Detection</h4>
+                        <p class="text-[10px] opacity-50 mt-2">How to spot danger before it becomes a threat.</p>
+                    </div>
+                </div>
+
+                <!-- Video 3 -->
+                <div class="video-card-premium group">
+                    <div class="iframe-container"><span class="badge-online">STREET SMART</span>
+                        <iframe class="w-full h-full" src="https://www.youtube.com/embed/M4_8PoRQP8w" frameborder="0"
+                            allowfullscreen></iframe>
+                    </div>
+                    <div class="video-card-content">
+                        <h4 class="font-bold text-sm">5 Essential Safety Rules</h4>
+                        <p class="text-[10px] opacity-50 mt-2">Daily habits to keep you safe while traveling.</p>
+                    </div>
+                </div>
+
+                <!-- Video 4: Keychain -->
+                <div class="video-card-premium group">
+                    <div class="iframe-container"><span class="badge-online">Keychain Defence</span>
+                        <iframe class="w-full h-full" src="https://www.youtube.com/embed/bHcXVeR3rWU" frameborder="0"
+                            allowfullscreen></iframe>
+                    </div>
+                    <div class="video-card-content">
+                        <h4 class="font-bold text-sm">Street Awareness Hack</h4>
+                        <p class="text-[10px] opacity-50 mt-2">A quick guide to staying alert while walking.</p>
+                    </div>
+                </div>
+
+                <!-- Video 5: Custom Link Card -->
+                <div class="video-card-premium group relative">
+                    <a href="https://www.youtube.com/watch?v=FW0tk65YdMQ" target="_blank" rel="noopener noreferrer"
+                        class="block">
+                        <div class="thumbnail-box relative">
+                            <span class="badge-online">KIDNAPPING ATTEMPT</span>
+                            <img src="https://img.youtube.com/vi/FW0tk65YdMQ/maxresdefault.jpg" alt="Wrist Grab Escape"
+                                class="w-full h-full object-cover">
+                            <div
+                                class="absolute inset-0 flex items-center justify-center bg-black/40 group-hover:bg-black/60 transition-all">
+                                <div
+                                    class="w-14 h-14 bg-red-600 rounded-full flex items-center justify-center shadow-2xl">
+                                    <i class="fa-solid fa-play text-white text-lg"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                    <div class="video-card-content">
+                        <h4 class="font-bold text-sm">Wrist Grab Escape</h4>
+                        <p class="text-[10px] opacity-50 mt-2">Break free instantly. (Click to watch on YouTube)</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CATEGORY: Safeguard Originals -->
+            <div class="video-section-header mt-10">
+                <h2 class="video-category-title"><i class="fa-solid fa-cloud-arrow-down text-blue-400 mr-2"></i>
+                    Safeguard Originals</h2>
+                <span class="text-[10px] opacity-40 font-bold uppercase tracking-widest">Offline Support</span>
+            </div>
+
+            <div class="video-grid-unified">
+                <div class="video-card-premium group">
+                    <div class="thumbnail-box bg-slate-900 flex items-center justify-center">
+                        <video class="w-full h-full object-cover" controls poster="../assets/images/Logo.png">
+                            <source src="../assets/videos/safeguard-sos-guide.mp4" type="video/mp4">
+                        </video>
+                    </div>
+                    <div class="video-card-content">
+                        <h4 class="font-bold text-sm">How to use SOS Offline</h4>
+                        <p class="text-[10px] opacity-50 mt-2">Trigger alerts even without internet connection.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- PROFESSIONAL BOTTOM NAV BAR -->
+    <nav
+        class="fixed bottom-8 left-1/2 -translate-x-1/2 w-[92%] max-w-md h-16 glass rounded-[2rem] flex items-center justify-around px-4 z-50 border-white/5 bottom-nav-glass">
+        <a href="dashboard.html" class="nav-item-glow active text-blue-400 flex flex-col items-center">
+            <i class="fa-solid fa-house"></i>
+            <span class="text-[9px] mt-1 font-bold uppercase">Home</span>
+        </a>
+        <a href="emergency-contacts.html"
+            class="nav-item-glow text-white/30 flex flex-col items-center hover:text-white transition-all">
+            <i class="fa-solid fa-phone"></i>
+            <span class="text-[9px] mt-1 font-bold uppercase">Contacts</span>
+        </a>
+        <a href="safe-zones.html"
+            class="nav-item-glow text-white/30 flex flex-col items-center hover:text-white transition-all">
+            <i class="fa-solid fa-map-location-dot"></i>
+            <span class="text-[9px] mt-1 font-bold uppercase">Zones</span>
+        </a>
+        <a href="settings.html"
+            class="nav-item-glow text-white/30 flex flex-col items-center hover:text-white transition-all">
+            <i class="fa-solid fa-gear"></i>
+            <span class="text-[9px] mt-1 font-bold uppercase">Settings</span>
+        </a>
+    </nav>
+
+    <!-- 1. Load the Emergency Logic -->
+    <script src="../scripts/emergency.js"></script>
+
+    <!-- 2. Dashboard Session & UI Logic -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Retrieve session data
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            const token = localStorage.getItem('token');
+
+            // 🔐 SECURITY GATE: Prevent unauthorized access
+            if (!user || !token) {
+                console.warn("Unauthorized access attempt. Redirecting to login.");
+                window.location.href = '../index.html';
+                return;
+            }
+
+            // --- DISPLAY USER DATA ---
+            try {
+                // Capitalize and display the first name
+                const fullName = user.fullName || "User";
+                const firstName = fullName.split(' ')[0];
+                document.getElementById('userNameDisplay').innerText = firstName;
+            } catch (err) {
+                console.error("Error displaying user name:", err);
+            }
+
+            // --- LOGOUT LOGIC ---
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    if (confirm("🚨 Sign out of SafeGuard Command Center?")) {
+                        // Clear all local data
+                        localStorage.removeItem('currentUser');
+                        localStorage.removeItem('token');
+                        // Redirect to root login
+                        window.location.href = '../index.html';
+                    }
+                });
+            }
+
+            // --- SOS BUTTON DYNAMICS ---
+            // Visual feedback when clicking SOS
+            const sosBtn = document.getElementById('sosBtn');
+            if (sosBtn) {
+                sosBtn.addEventListener('mousedown', () => sosBtn.style.transform = 'scale(0.95)');
+                sosBtn.addEventListener('mouseup', () => sosBtn.style.transform = 'scale(1)');
+            }
+        });
+    </script>
+</body>
+
+</html>

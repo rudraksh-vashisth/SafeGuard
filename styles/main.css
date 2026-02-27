@@ -1,0 +1,31 @@
+:root {
+    --primary: #ff4b5c;
+    --accent-blue: #00d2ff;
+    --glass-bg: rgba(255, 255, 255, 0.03);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --text-glow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', 'Poppins', sans-serif;
+    /* Deep multi-color mesh gradient */
+    background: radial-gradient(circle at 0% 0%, #0f1115 0%, transparent 50%),
+                radial-gradient(circle at 100% 100%, #1a1d23 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, #0d0e12 0%, #000 100%);
+    background-attachment: fixed;
+    color: white;
+    overflow-x: hidden;
+}
+
+/* Background animated glow (The "Energy" look) */
+body::before {
+    content: "";
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: url('https://grainy-gradients.vercel.app/noise.svg');
+    opacity: 0.05;
+    pointer-events: none;
+    z-index: 1;
+}

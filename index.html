@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SafeGuard | Login</title>
+
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="../assets/images/Logo.png">
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/components.css">
+    <link rel="stylesheet" href="styles/animations.css">
+
+</head>
+
+<body>
+    <!-- 1. SPLASH SCREEN OVERLAY (DIRECT CHILD OF BODY) -->
+    <div id="splash-screen">
+        <div class="splash-content">
+            <div class="logo-circle">
+                <div class="inner-pulse"></div>
+                <img src="assets/images/logo.png" alt="SafeGuard Logo">
+            </div>
+            <h2 class="splash-logo-text">WOMEN SAFEGUARD</h2>
+        </div>
+    </div>
+
+    <!-- 2. MAIN CONTENT (ONLY ONE WRAPPER) -->
+    <div class="auth-wrapper hidden" id="main-content">
+        <!-- ANIMATED BACKGROUND ELEMENTS -->
+        <div class="bg-blur-circle circle-1"></div>
+        <div class="bg-blur-circle circle-2"></div>
+
+        <!-- AUTH CARD -->
+        <div class="auth-card">
+            <button id="theme-toggle" class="theme-btn" title="Toggle Light/Dark Mode">
+                <i class="fa-solid fa-moon" id="theme-icon"></i>
+            </button>
+
+            <div class="header">
+                <div class="logo-area">
+                    <div class="logo-shimmer"></div>
+                    <!-- Using your custom logo here too for consistency -->
+                    <img src="assets/images/logo.png" class="main-logo" alt="Shield Logo">
+                </div>
+                <h1 class="header-title">SAFEGUARD</h1>
+                <p class="status-text"><span class="dot"></span> SECURE ENCRYPTION ACTIVE</p>
+            </div>
+
+            <form id="loginForm">
+                <div class="input-group">
+                    <input type="email" id="email" placeholder="Email Address" required>
+                    <!-- Wrapped Password -->
+                    <div class="password-wrap">
+                        <input type="password" id="password" placeholder="Password" required>
+                        <i class="fa-solid fa-eye-slash toggle-password"></i>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-primary btn-glow">Login</button>
+
+                <div class="footer-text">
+                    New here? <a href="pages/signup.html">Create Account</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- SCRIPTS AT THE END -->
+    <script src="scripts/ui-controller.js"></script>
+    <script src="scripts/auth.js"></script>
+</body>
+
+</html>

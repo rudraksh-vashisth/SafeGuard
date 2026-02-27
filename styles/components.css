@@ -1,0 +1,440 @@
+/* ============================================================
+   1. THEME VARIABLES 
+   ============================================================ */
+:root {
+    --bg-color: #0f1115;
+    --card-bg: rgba(26, 29, 35, 0.85);
+    --text-main: #ffffff;
+    --text-dim: #94a3b8;
+    --accent: #ff4b5c; 
+    --input-border: rgba(255, 255, 255, 0.1);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --blur: 20px;
+    --accent-blue: #00d2ff;
+}
+
+[data-theme="light"] {
+    --bg-color: #f8fafc;
+    --card-bg: rgba(255, 255, 255, 0.9);
+    --text-main: #1e293b;
+    --text-dim: #64748b;
+    --accent: #ff4b5c;
+    --input-border: #e2e8f0;
+    --glass-border: rgba(0, 0, 0, 0.08);
+    --accent-blue: #3b82f6;
+}
+
+/* ============================================================
+   2. GLOBAL & LAYOUT
+   ============================================================ */
+body {
+    margin: 0; padding: 0;
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--bg-color) !important;
+    color: var(--text-main);
+    transition: background-color 0.4s ease, color 0.4s ease;
+    overflow-x: hidden;
+}
+
+.auth-wrapper {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    min-height: 100vh !important;
+    background-color: var(--bg-color) !important;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+.auth-card {
+    position: relative !important; 
+    background: var(--card-bg) !important;
+    width: 90% !important;
+    max-width: 400px !important;
+    padding: 50px 40px !important;
+    border-radius: 32px !important;
+    text-align: center;
+    backdrop-filter: blur(var(--blur)) saturate(180%);
+    -webkit-backdrop-filter: blur(var(--blur)) saturate(180%);
+    border: 1px solid var(--glass-border) !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
+    z-index: 10;
+}
+
+/* ============================================================
+   3. LOGO & HEADER
+   ============================================================ */
+.logo-area {
+    width: 95px !important;
+    height: 95px !important;
+    margin: 0 auto 20px !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-radius: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--glass-border) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+}
+
+.main-logo {
+    width: 65px !important; height: 65px !important;
+    object-fit: contain; z-index: 2;
+    filter: brightness(1.2) drop-shadow(0 0 10px rgba(0, 210, 255, 0.4)) !important;
+    transition: filter 0.3s ease;
+}
+
+[data-theme="light"] .main-logo { filter: brightness(1) !important; }
+[data-theme="light"] .logo-area { background: #ffffff !important; border: 1px solid #e2e8f0 !important; }
+
+.logo-shimmer {
+    position: absolute; top: 0; left: -150%; width: 50%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transform: skewX(-20deg); animation: shimmer 3s infinite;
+}
+
+@keyframes shimmer { 100% { left: 250%; } }
+.header h1 { font-size: 26px; font-weight: 700; margin: 10px 0 5px; letter-spacing: 2px; }
+.status-text { font-size: 0.75rem; letter-spacing: 2px; color: var(--text-dim); margin-top: 10px; }
+
+/* ============================================================
+   4. INPUTS & BUTTONS
+   ============================================================ */
+.input-group input {
+    width: 100% !important;
+    display: block !important;
+    margin-bottom: 15px !important;
+    padding: 14px 16px !important;
+    background: var(--bg-color) !important; 
+    border: 1px solid var(--input-border) !important;
+    border-radius: 12px !important;
+    color: var(--text-main) !important;
+    box-sizing: border-box !important;
+    font-size: 15px;
+    transition: 0.3s;
+}
+
+.input-group input:focus { border-color: var(--accent-blue) !important; box-shadow: 0 0 15px rgba(0, 210, 255, 0.1) !important; outline: none; }
+
+.btn-primary {
+    width: 100% !important; padding: 15px !important;
+    background: linear-gradient(135deg, var(--accent) 0%, #ff2e43 100%) !important;
+    color: white !important; border: none; border-radius: 14px !important;
+    font-weight: 700 !important; text-transform: uppercase; letter-spacing: 1px;
+    cursor: pointer; box-shadow: 0 10px 20px rgba(255, 75, 92, 0.3) !important;
+    margin-top: 10px; transition: 0.3s;
+}
+
+.btn-primary:hover { transform: translateY(-2px); filter: brightness(1.1); }
+.footer-text { margin-top: 25px; color: var(--text-dim); font-size: 0.85rem; }
+.footer-text a { color: var(--accent); text-decoration: none; font-weight: 600; margin-left: 5px; }
+
+/* ============================================================
+   5. PHONE LIBRARY (ITI) - ENTERPRISE THEME INTEGRATION
+   ============================================================ */
+
+/* 1. The Main Wrapper - FIXED: Removed white strip background */
+.iti { 
+    width: 100% !important; 
+    position: relative !important; 
+    margin-bottom: 12px !important; 
+    display: block !important;
+    background-color: transparent !important; /* Prevents white flash on refresh */
+}
+
+/* 2. The Phone Input Field */
+.iti input { 
+    width: 100% !important;
+    height: 52px !important;
+    padding-left: 85px !important; /* Space for Flag + Dial Code */
+    box-sizing: border-box !important;
+    background-color: var(--bg-color) !important;
+    color: var(--text-main) !important;
+    border: 1px solid var(--input-border) !important;
+    border-radius: 12px !important;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* 3. The Dropdown Container (Main Box) */
+.iti__country-list {
+    position: absolute !important;
+    inset-inline: 0 !important;
+    top: calc(100% + 5px) !important;
+    width: 100% !important;
+    max-height: 280px !important;
+    background-color: var(--card-bg) !important;
+    color: var(--text-main) !important;
+    border: 1px solid var(--input-border) !important;
+    backdrop-filter: blur(25px) !important; /* Premium Glassmorphism */
+    border-radius: 16px !important;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7) !important;
+    padding: 0 !important; /* Critical: Removes top white gap */
+    overflow-x: hidden !important;
+    z-index: 10000 !important;
+}
+
+/* 4. Search UI - FIXED: Removed internal white containers */
+.iti__search-container, 
+.iti__dropdown-content {
+    background-color: var(--card-bg) !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+}
+
+.iti__search-input {
+    width: 100% !important;
+    height: 48px !important;
+    margin: 0 !important;
+    padding: 0 15px !important;
+    background: var(--bg-color) !important;
+    color: var(--text-main) !important;
+    border: none !important; 
+    border-bottom: 1px solid var(--input-border) !important; /* Clean divider */
+    border-radius: 0 !important; /* Sits flush with the top corners */
+    outline: none !important;
+    box-shadow: none !important;
+    box-sizing: border-box !important;
+    font-size: 15px !important;
+}
+
+/* 5. List Items & Interaction */
+.iti__country { 
+    padding: 12px 15px !important; 
+    display: flex !important; 
+    align-items: center !important;
+    background-color: transparent !important;
+    transition: background 0.2s ease;
+}
+
+.iti__country:hover { 
+    background-color: rgba(255, 255, 255, 0.08) !important; 
+}
+
+.iti__dial-code { 
+    color: var(--text-dim) !important; 
+    margin-left: auto !important; 
+}
+
+/* 6. Selected Flag Area */
+.iti__selected-flag {
+    background-color: transparent !important;
+    border-radius: 12px 0 0 12px !important;
+    padding-left: 12px !important;
+    width: 75px !important;
+}
+
+/* 7. Sleek Custom Scrollbar */
+.iti__country-list::-webkit-scrollbar { width: 5px; }
+.iti__country-list::-webkit-scrollbar-track { background: transparent; }
+.iti__country-list::-webkit-scrollbar-thumb { 
+    background: var(--accent-blue); 
+    border-radius: 10px; 
+}
+
+/* 8. Light Theme Support Overrides */
+[data-theme="light"] .iti__country-list,
+[data-theme="light"] .iti__search-container { 
+    background-color: #ffffff !important; 
+}
+
+[data-theme="light"] .iti__search-input { 
+    background: #f8fafc !important; 
+    color: #000000 !important; 
+}
+
+[data-theme="light"] .iti__country:hover { 
+    background-color: #f1f5f9 !important; 
+}
+
+/* 6. DARK MINIMALIST SCROLLBAR */
+.iti__country-list::-webkit-scrollbar { width: 4px; }
+.iti__country-list::-webkit-scrollbar-track { background: transparent; }
+.iti__country-list::-webkit-scrollbar-thumb { 
+    background: var(--accent-blue); 
+    border-radius: 10px; 
+}
+
+/* 7. THEME SYNC */
+[data-theme="light"] .iti__country-list,
+[data-theme="light"] .iti__search-container { background-color: #ffffff !important; }
+[data-theme="light"] .iti__search-input { background: #f8fafc !important; color: #000; }
+
+/* ============================================================
+   6. SPLASH SCREEN & ANIMATIONS
+   ============================================================ */
+#splash-screen {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background: #000000; display: flex; justify-content: center; align-items: center;
+    z-index: 100000; overflow: hidden;
+}
+
+.splash-content { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+
+.logo-circle {
+    position: relative; width: clamp(100px, 15vw, 140px); height: clamp(100px, 15vw, 140px);
+    margin-bottom: 25px; animation: zoomIn 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.logo-circle img { width: 100%; height: 100%; object-fit: contain; }
+
+.splash-logo-text {
+    color: #ffffff; font-size: clamp(1.2rem, 3vw, 1.8rem); font-weight: 700;
+    letter-spacing: clamp(4px, 1vw, 8px); margin: 0; opacity: 0;
+    animation: fadeInUp 0.8s 0.6s ease-out forwards;
+}
+
+.hidden { display: none !important; }
+.show-app { display: flex !important; animation: popIn 0.8s cubic-bezier(0.26, 0.53, 0.74, 1.48) forwards; }
+
+/* ============================================================
+   7. THEME TOGGLE & DECORATIONS
+   ============================================================ */
+#theme-toggle {
+    position: absolute !important; top: 25px; right: 25px; z-index: 100 !important;
+    background: transparent; border: none; color: var(--text-dim); font-size: 1.2rem;
+    cursor: pointer; padding: 8px; border-radius: 50%; display: flex; transition: 0.3s ease;
+}
+
+#theme-toggle:hover { background: rgba(128, 128, 128, 0.1); color: var(--accent); }
+
+.bg-blur-circle {
+    position: absolute; border-radius: 50%; filter: blur(100px); z-index: 1;
+    opacity: 0.25; animation: floatBg 15s infinite alternate;
+}
+.circle-1 { width: 450px; height: 450px; background: var(--accent); top: -200px; left: -200px; }
+.circle-2 { width: 400px; height: 400px; background: var(--accent-blue); bottom: -150px; right: -150px; }
+
+@keyframes floatBg { 0% { transform: translate(0,0); } 100% { transform: translate(80px, 120px) scale(1.1); } }
+@keyframes zoomIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes popIn { 0% { opacity: 0; transform: scale(0.9) translateY(30px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
+
+/* ============================================================
+   8. PASSWORD TOGGLE STYLING (NEW)
+   ============================================================ */
+.password-wrap {
+    position: relative;
+    width: 100%;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-80%); /* Centers the eye icon in your field height */
+    cursor: pointer;
+    color: var(--text-dim);
+    font-size: 0.9rem;
+    z-index: 10;
+    transition: color 0.3s;
+}
+
+.toggle-password:hover {
+    color: var(--accent);
+}
+
+/* Ensure typed text doesn't hide behind the eye icon */
+.password-wrap input {
+    padding-right: 45px !important;
+}
+
+/* Password Hint Styling */
+.password-hint {
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    text-align: left;
+    margin-top: -8px;
+    margin-bottom: 12px;
+    padding-left: 5px;
+    line-height: 1.4;
+}
+
+/* Red glow if requirements aren't met (optional extra) */
+.input-group input:invalid {
+    border-color: rgba(255, 75, 92, 0.2);
+}
+
+
+/* ============================================================
+   DASHBOARD SPECIFIC STYLES
+   ============================================================ */
+
+.dashboard-header {
+    padding: 30px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.user-info { display: flex; align-items: center; gap: 15px; }
+.user-avatar {
+    width: 45px; height: 45px;
+    background: var(--card-bg);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid var(--glass-border);
+}
+.greeting { font-size: 0.8rem; color: var(--text-dim); margin: 0; }
+#userName { font-size: 1.2rem; margin: 0; font-weight: 600; }
+
+.status-pill {
+    background: rgba(0, 255, 136, 0.1);
+    width: fit-content;
+    padding: 6px 16px;
+    border-radius: 100px;
+    margin: 0 auto 40px;
+    display: flex; align-items: center; gap: 8px;
+    border: 1px solid rgba(0, 255, 136, 0.2);
+}
+.status-pill p { font-size: 0.7rem; letter-spacing: 1px; color: #00ff88; margin: 0; font-weight: 700; }
+
+/* THE SOS BUTTON ENGINE */
+.sos-container { text-align: center; margin-top: 20px; }
+.sos-ring {
+    position: relative;
+    width: 200px; height: 200px;
+    margin: 0 auto 30px;
+    display: flex; align-items: center; justify-content: center;
+}
+
+.btn-sos-main {
+    width: 140px; height: 140px;
+    background: radial-gradient(circle, #ff4b5c, #d4142a);
+    border: none; border-radius: 50%;
+    color: white; font-size: 1.8rem; font-weight: 800;
+    cursor: pointer; z-index: 5;
+    box-shadow: 0 10px 30px rgba(255, 75, 92, 0.5);
+    transition: transform 0.2s;
+}
+.btn-sos-main:active { transform: scale(0.9); }
+
+/* Bottom Nav */
+.bottom-nav {
+    position: fixed; bottom: 0; width: 100%;
+    background: var(--card-bg);
+    backdrop-filter: blur(20px);
+    display: flex; justify-content: space-around;
+    padding: 15px 0 25px;
+    border-top: 1px solid var(--glass-border);
+    z-index: 100;
+}
+.nav-item { text-decoration: none; color: var(--text-dim); text-align: center; }
+.nav-item.active { color: var(--accent); }
+.nav-item i { font-size: 1.2rem; display: block; margin-bottom: 4px; }
+.nav-item span { font-size: 0.7rem; font-weight: 500; }
+
+/* Grid */
+.action-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 15px; padding: 20px; margin-bottom: 100px;
+}
+.action-card {
+    background: var(--card-bg);
+    padding: 20px; border-radius: 20px;
+    text-align: center; border: 1px solid var(--glass-border);
+}
+.action-card i { font-size: 1.5rem; color: var(--accent-blue); margin-bottom: 10px; display: block; }
