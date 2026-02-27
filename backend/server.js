@@ -28,10 +28,9 @@ if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN) {
 }
 
 // ============================================================
-// 2. GLOBAL SECURITY MIDDLEWARE
+// 2. GLOBAL SECURITY MIDDLEWARE (FIXED & STABLE)
 // ============================================================
 app.use(helmet()); 
-
 app.use(cors({
     origin: '*', 
     methods: ['GET', 'POST', 'DELETE'],
@@ -40,24 +39,37 @@ app.use(cors({
 
 app.use(express.json({ limit: '10kb' })); 
 
-// 🛡️ NO-SQL INJECTION PROTECTION (Fixed to prevent "getter" error)
-app.use(mongoSanitize({ replaceWith: '_' }));
-
-app.use((req, res, next) => {
-    const sanitize = (obj) => {
-        if (obj instanceof Object) {
-            for (let key in obj) {
-                if (key.startsWith('$')) {
-                    delete obj[key];
-                } else {
-                    sanitize(obj[key]);
-                }
+/**
+ * 🛡️ CUSTOM SECURITY SHIELD (Replaces express-mongo-sanitize)
+ * Recursively removes any keys starting with '$' to prevent NoSQL Injection
+ * This version is safe for Render and won't cause "Getter" errors.
+ */
+const sanitizeData = (obj) => {
+    if (obj instanceof Object) {
+        for (let key in obj) {
+            if (key.startsWith('$')) {
+                console.warn(`[Security] Prohibited key dropped: ${key}`);
+                delete obj[key];
+            } else {
+                sanitizeData(obj[key]);
             }
         }
-    };
-    sanitize(req.body);
-    sanitize(req.params);
-    sanitize(req.query);
+    }
+};
+
+app.use((req, res, next) => {
+    sanitizeData(req.body);
+    sanitizeData(req.params);
+    sanitizeData(req.query);
+    next();
+});
+
+// Outdated/Buggy XSS library check - if you have app.use(xss()), replace it with this:
+app.use((req, res, next) => {
+    if (req.body) {
+        const stringified = JSON.stringify(req.body).replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gim, "");
+        req.body = JSON.parse(stringified);
+    }
     next();
 });
 
