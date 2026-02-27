@@ -11,56 +11,40 @@ const rateLimit = require('express-rate-limit');
 const app = express();
 
 // ============================================================
-// 1. GLOBAL SECURITY MIDDLEWARE (MANUAL SHIELD)
+// 1. GLOBAL CONFIG & SECURITY CONSTANTS
+// ============================================================
+const PORT = process.env.PORT || 3000;
+const JWT_SECRET = process.env.JWT_SECRET || "safeguard_emergency_system_master_key_2024";
+
+// FIX: Define MONGO_URI so the server doesn't crash
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/safeguard';
+
+// Initialize Twilio Client
+let twilioClient;
+if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN) {
+    twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+}
+
+// ============================================================
+// 2. GLOBAL SECURITY MIDDLEWARE (STABLE & CLEAN)
 // ============================================================
 app.use(helmet()); 
-app.use(cors({ origin: '*' })); 
-app.use(express.json({ limit: '10kb' })); 
+app.use(cors({
+    origin: '*', 
+    methods: ['GET', 'POST', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Emergency-Signal']
+}));
 
-// 🛡️ MANUAL DATA SANITIZER (Replaces express-mongo-sanitize)
-const sanitize = (obj) => {
-    if (obj instanceof Object) {
-        for (let key in obj) {
-            if (key.startsWith('$')) delete obj[key];
-            else sanitize(obj[key]);
-        }
-    }
-};
-
-app.use((req, res, next) => {
-    sanitize(req.body);
-    sanitize(req.params);
-    sanitize(req.query);
-    next();
-});
-
-// 🛡️ MANUAL XSS FILTER (Replaces xss-clean)
-app.use((req, res, next) => {
-    if (req.body) {
-        let str = JSON.stringify(req.body);
-        str = str.replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gim, "");
-        req.body = JSON.parse(str);
-    }
-    next();
-});
-
-// ============================================================
-// 2. GLOBAL SECURITY MIDDLEWARE (STABLE VERSION)
-// ============================================================
-app.use(helmet()); 
-app.use(cors({ origin: '*' })); 
 app.use(express.json({ limit: '10kb' })); 
 
 /**
  * 🛡️ MANUAL SECURITY SHIELD 
- * This does exactly what express-mongo-sanitize did, but it is 
- * safe for Render and won't cause "Getter" errors.
+ * Replaces express-mongo-sanitize to avoid Render "Getter" errors.
  */
 const sanitizeData = (obj) => {
     if (obj instanceof Object) {
         for (let key in obj) {
             if (key.startsWith('$')) {
-                console.warn(`[Security] Dropped prohibited key: ${key}`);
                 delete obj[key];
             } else {
                 sanitizeData(obj[key]);
@@ -73,6 +57,16 @@ app.use((req, res, next) => {
     sanitizeData(req.body);
     sanitizeData(req.params);
     sanitizeData(req.query);
+    next();
+});
+
+// Manual XSS Filter
+app.use((req, res, next) => {
+    if (req.body) {
+        let str = JSON.stringify(req.body);
+        str = str.replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gim, "");
+        req.body = JSON.parse(str);
+    }
     next();
 });
 
@@ -149,7 +143,6 @@ app.post('/api/login', async (req, res) => {
             user: { fullName: user.fullName, email: user.email, id: user._id } 
         });
     } catch (error) {
-        console.error("Login Error:", error.message);
         res.status(500).json({ error: "Login system failure." });
     }
 });
@@ -198,7 +191,7 @@ app.delete('/api/user/contacts/:id', async (req, res) => {
 });
 
 // ============================================================
-// 7. SECURE SOS DISPATCH (Twilio Enabled)
+// 7. SECURE SOS DISPATCH
 // ============================================================
 const sosLimiter = rateLimit({ windowMs: 60000, max: 3 });
 
@@ -220,14 +213,11 @@ app.post('/api/sos/trigger', sosLimiter, async (req, res) => {
         user.auditLog.push({ action: "SOS_TRIGGERED", ip: req.ip });
         await user.save();
 
-        console.log(`\n🚨 ALERT: ${user.fullName.toUpperCase()} is in danger!`);
-
         const sortedGuardians = user.emergencyContacts.sort((a, b) => a.priority - b.priority);
 
         if (twilioClient) {
             sortedGuardians.forEach(async (guardian) => {
                 try {
-                    // Call Priority 1 Guardian
                     if(guardian.priority === 1) {
                         await twilioClient.calls.create({
                             twiml: `<Response><Say voice="alice">Emergency alert for ${user.fullName}. They are in trouble. A location link has been sent to your phone.</Say></Response>`,
@@ -235,7 +225,6 @@ app.post('/api/sos/trigger', sosLimiter, async (req, res) => {
                             from: process.env.TWILIO_PHONE_NUMBER
                         });
                     }
-                    // Send SMS to all
                     await twilioClient.messages.create({
                         body: `🚨 SOS from ${user.fullName}: ${note || 'Needs help!'}. Track Live: ${mapLink}`,
                         to: guardian.phone,
