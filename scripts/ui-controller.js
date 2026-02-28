@@ -1,6 +1,6 @@
 /**
  * SafeGuard UI Controller - Professional Edition
- * Handles: Theme Switching, Splash Screen Staging, and Anti-Clipping Centering.
+ * Handles: Theme Switching, Splash Screen Staging, and Instant-Reveal Centering.
  */
 
 // 1. IMMEDIATE THEME ENGINE
@@ -17,51 +17,50 @@ document.addEventListener('DOMContentLoaded', () => {
     const mainContent = document.getElementById('main-content');
 
     /**
-     * 2. SPLASH SCREEN & ANTI-CLIPPING ENGINE
-     * Manages the transition and resets scroll to prevent "cutting from above".
+     * 2. OPTIMIZED SPLASH SCREEN & INSTANT REVEAL ENGINE
+     * Fixes the delay by overlapping the splash fade-out with the card fade-in.
      */
     if (splash) {
         const startApp = () => {
             if (splash.classList.contains('fade-out')) return;
 
-            // 🛡️ STEP A: Prepare the card behind the splash screen
+            // 🛡️ STEP A: Trigger Main Content Reveal IMMEDIATELY
+            // We no longer wait for the splash to finish fading.
             if (mainContent) {
                 mainContent.classList.remove('hidden');
+                mainContent.style.display = 'flex'; // Force flex for centering logic
                 
-                // CRITICAL FIX: Force flex and reset scroll position to the absolute top
-                // This prevents the "cutting from above" glitch on long forms
-                mainContent.style.display = 'flex'; 
-                mainContent.scrollTop = 0; 
-                window.scrollTo(0, 0);
+                requestAnimationFrame(() => {
+                    mainContent.classList.add('show-app');
+                    // Reset scroll to top to prevent "pixel cutting" on mobile
+                    window.scrollTo(0, 0);
+                    mainContent.scrollTop = 0;
+                });
             }
 
             // 🛡️ STEP B: Start fading the splash screen
             splash.classList.add('fade-out');
 
-            // 🛡️ STEP C: Reveal the card smoothly
+            // 🛡️ STEP C: Cleanup splash after visual transition is done
             setTimeout(() => {
                 splash.style.display = 'none';
-                if (mainContent) {
-                    /**
-                     * requestAnimationFrame ensures the browser has calculated the 
-                     * "margin: auto" centering before the animation starts.
-                     */
-                    requestAnimationFrame(() => {
-                        mainContent.classList.add('show-app');
-                        // Second pass scroll reset for stubborn mobile browsers
-                        mainContent.scrollTop = 0;
-                    });
-                }
-            }, 600); // Trigger slightly before splash is fully gone
+            }, 800); // Duration matches the CSS transition
         };
 
-        // Delay to showcase the high-end "Welcome" branding
-        setTimeout(startApp, 3500);
+        /**
+         * TIMING ADJUSTMENT: 
+         * Reduced to 2500ms. This allows enough time for the logo pop 
+         * and staggered text reveal, but feels "instant" to the user.
+         */
+        const animationTimer = setTimeout(startApp, 2500);
 
-        // Fallback: If page takes too long to load, the timeout above still triggers
-        window.addEventListener('load', () => {});
+        // Fallback: Ensure app triggers even if images take too long to load
+        window.addEventListener('load', () => {
+            // Optional: Uncomment the next line to skip remaining timer once loaded
+            // clearTimeout(animationTimer); startApp();
+        });
     } else {
-        // Fallback for pages without a splash screen (like Dashboard)
+        // Fallback for pages without a splash screen
         if (mainContent) {
             mainContent.classList.remove('hidden');
             mainContent.style.display = 'flex';

@@ -114,12 +114,16 @@
 /* Entrance for the login card / Dashboard after splash */
 .show-app {
     display: flex !important;
-    animation: popIn 0.8s cubic-bezier(0.26, 0.53, 0.74, 1.48) forwards;
+    /* Reduced duration to 0.5s for a professional, instant feel */
+    animation: popIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards !important;
+    /* REMOVE ALL DELAYS */
+    animation-delay: 0s !important; 
 }
 
 .animate-pop-in {
     opacity: 0;
-    animation: popIn 0.8s cubic-bezier(0.26, 0.53, 0.74, 1.48) forwards;
+    animation: popIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    animation-delay: 0s !important;
 }
 
 /* ============================================================
@@ -164,8 +168,14 @@
 }
 
 @keyframes popIn {
-    0% { opacity: 0; transform: scale(0.9) translateY(30px); }
-    100% { opacity: 1; transform: scale(1) translateY(0); }
+    0% { 
+        opacity: 0; 
+        transform: scale(0.96) translateY(10px); /* Smaller movement is faster */
+    }
+    100% { 
+        opacity: 1; 
+        transform: scale(1) translateY(0); 
+    }
 }
 
 @keyframes pulse {
