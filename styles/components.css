@@ -25,58 +25,81 @@
 }
 
 /* ============================================================
-   2. GLOBAL & LAYOUT - ANTI-CLIPPING CENTERING FIX
+   2. GLOBAL & LAYOUT - ANTI-CLIPPING CENTERING ENGINE
    ============================================================ */
+
 .auth-wrapper {
-    display: none; 
-    opacity: 0;
-    
     position: fixed;
     inset: 0;
     width: 100%;
-    height: 100dvh; /* Dynamic viewport height */
-    
+    height: 100dvh; /* Dynamic viewport height for mobile browser compatibility */
     background-color: var(--bg-color) !important;
     
-    /* THE FIX: Use flex-start and padding to allow scrolling without cutting */
+    /* Layout Logic */
+    display: none; /* Controlled by ui-controller.js */
     flex-direction: column;
-    align-items: center;      /* Centers horizontally */
-    justify-content: flex-start; /* Starts from top to allow scrolling */
+    align-items: center;
+    justify-content: flex-start; /* Required for 'margin: auto' centering to prevent top-clipping */
     
-    padding: 60px 20px;       /* Increased top/bottom padding for breathing room */
-    overflow-y: auto;         /* MUST BE AUTO to allow scrolling */
+    /* Anti-Slide & Performance */
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior-y: none; /* Stops the background from sliding/bouncing */
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+    padding: 40px 20px;
     z-index: 50;
+    opacity: 0;
     transition: opacity 0.6s ease-in-out;
 }
 
+/* Activated State */
 .auth-wrapper.show-app {
     display: flex !important;
     opacity: 1 !important;
 }
 
+/* The Background Energy Circles */
+.bg-blur-circle {
+    position: fixed !important;
+    z-index: -1;
+    pointer-events: none;
+    filter: blur(100px);
+    will-change: transform;
+}
+
+/* The Central Shield Card */
 .auth-card {
-    /* THE SECRET: margin: auto on a flex item creates "Safe Centering" */
-    /* It centers the card if it fits, but prevents clipping if it doesn't */
-    margin: auto !important; 
-    
-    position: relative !important; 
+    position: relative !important;
     background: var(--card-bg) !important;
     width: 100%;
     max-width: 400px;
     padding: 40px 30px;
     border-radius: 32px;
-    text-align: center;
-    backdrop-filter: blur(var(--blur)) saturate(180%);
     border: 1px solid var(--glass-border) !important;
+    
+    /* High-End Visuals */
+    backdrop-filter: blur(var(--blur)) saturate(180%);
+    -webkit-backdrop-filter: blur(var(--blur)) saturate(180%);
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
+    
+    /* 🛡️ THE SECRET: margin: auto creates 'Safe Centering' 
+       Centres vertically if space allows, scrolls from top if content overflows. */
+    margin: auto !important; 
+    text-align: center;
     z-index: 10;
 }
 
-/* 3. LOGO FIX - Ensure the logo area doesn't push the card too high */
+/* 3. LOGO AREA ADJUSTMENT */
 .logo-area {
     width: 85px !important;
     height: 85px !important;
-    margin: 0 auto 15px !important; /* Reduced margin to save space */
+    margin: 0 auto 15px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 2;
 }
 /* ============================================================
    3. LOGO & HEADER
