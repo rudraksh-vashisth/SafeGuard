@@ -25,50 +25,63 @@
 }
 
 /* ============================================================
-   2. GLOBAL & LAYOUT - ANTI-CLIPPING CENTERING ENGINE
+   1. THEME VARIABLES (CENTRAL CONTROL)
    ============================================================ */
+:root {
+    --bg-color: #0f1115;
+    --card-bg: rgba(26, 29, 35, 0.85);
+    --text-main: #ffffff;
+    --text-dim: #94a3b8;
+    --accent: #ff4b5c; 
+    --input-border: rgba(255, 255, 255, 0.1);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --blur: 20px;
+    --accent-blue: #00d2ff;
+}
 
+[data-theme="light"] {
+    --bg-color: #f8fafc;
+    --card-bg: rgba(255, 255, 255, 0.9);
+    --text-main: #1e293b;
+    --text-dim: #64748b;
+    --accent: #ff4b5c;
+    --input-border: #e2e8f0;
+    --glass-border: rgba(0, 0, 0, 0.08);
+    --accent-blue: #3b82f6;
+}
+
+/* ============================================================
+   2. AUTH LAYOUT ENGINE (ANTI-CLIPPING & CENTERING)
+   ============================================================ */
 .auth-wrapper {
     position: fixed;
     inset: 0;
     width: 100%;
-    height: 100dvh; /* Dynamic viewport height for mobile browser compatibility */
+    height: 100dvh; /* Dynamic viewport height for mobile bar compatibility */
     background-color: var(--bg-color) !important;
     
-    /* Layout Logic */
+    /* Centering Logic */
     display: none; /* Controlled by ui-controller.js */
     flex-direction: column;
     align-items: center;
-    justify-content: flex-start; /* Required for 'margin: auto' centering to prevent top-clipping */
+    justify-content: flex-start; /* Required for 'margin: auto' centering */
     
-    /* Anti-Slide & Performance */
+    /* Scroll & Interaction */
     overflow-y: auto;
     overflow-x: hidden;
-    overscroll-behavior-y: none; /* Stops the background from sliding/bouncing */
+    overscroll-behavior-y: contain; /* Prevents background sliding/bounce */
     -webkit-overflow-scrolling: touch;
-    touch-action: pan-y;
     padding: 40px 20px;
     z-index: 50;
     opacity: 0;
     transition: opacity 0.6s ease-in-out;
 }
 
-/* Activated State */
 .auth-wrapper.show-app {
     display: flex !important;
     opacity: 1 !important;
 }
 
-/* The Background Energy Circles */
-.bg-blur-circle {
-    position: fixed !important;
-    z-index: -1;
-    pointer-events: none;
-    filter: blur(100px);
-    will-change: transform;
-}
-
-/* The Central Shield Card */
 .auth-card {
     position: relative !important;
     background: var(--card-bg) !important;
@@ -78,148 +91,134 @@
     border-radius: 32px;
     border: 1px solid var(--glass-border) !important;
     
-    /* High-End Visuals */
+    /* Visual Depth */
     backdrop-filter: blur(var(--blur)) saturate(180%);
     -webkit-backdrop-filter: blur(var(--blur)) saturate(180%);
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
     
-    /* 🛡️ THE SECRET: margin: auto creates 'Safe Centering' 
-       Centres vertically if space allows, scrolls from top if content overflows. */
+    /* 🛡️ SAFE CENTERING: Centers vertically if space exists, scrolls if content overflows */
     margin: auto !important; 
     text-align: center;
     z-index: 10;
 }
 
-/* 3. LOGO AREA ADJUSTMENT */
-.logo-area {
-    width: 85px !important;
-    height: 85px !important;
-    margin: 0 auto 15px !important;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    z-index: 2;
-}
 /* ============================================================
-   3. LOGO & HEADER
+   3. LOGO & BRANDING SYSTEM
    ============================================================ */
-.logo-circle, .logo-area {
-    width: 90px !important;
-    height: 90px !important;
-    min-width: 90px;
-    min-height: 90px;
-}
 
-.logo-circle img, .main-logo {
-    width: 60px !important;
-    height: 60px !important;
+/* Common Image Properties */
+.main-logo, .logo-circle img {
     object-fit: contain !important;
     display: block;
 }
 
-.logo-area {
-    width: 95px !important;
-    height: 95px !important;
-    margin: 0 auto 20px !important;
-    background: rgba(255, 255, 255, 0.05) !important;
-    border-radius: 26px;
+/* --- A. Logo Inside Auth Cards --- */
+.auth-card .logo-area {
+    width: 85px !important;
+    height: 85px !important;
+    margin: 0 auto 15px !important;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 22px;
     display: flex;
     align-items: center;
     justify-content: center;
-    position: relative;
     overflow: hidden;
-    border: 1px solid var(--glass-border) !important;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+    border: 1px solid var(--glass-border);
 }
 
-/* 1. This keeps the logo small (65px) only on the Login/Signup cards */
-.main-logo {
-    width: 65px !important; 
-    height: 65px !important;
-    object-fit: contain; 
-    z-index: 2;
-    filter: brightness(1.2) drop-shadow(0 0 10px rgba(0, 210, 255, 0.4)) !important;
+.auth-card .main-logo {
+    width: 55px !important;
+    height: 55px !important;
+    filter: brightness(1.2) drop-shadow(0 0 10px rgba(0, 210, 255, 0.4));
     transition: filter 0.3s ease;
 }
 
-/* 2. THE FIX: This forces the logo to be LARGE during the Splash Screen pop-up */
-.logo-circle .main-logo {
-    /* Increased size significantly for clear viewing */
-    width: clamp(180px, 25vw, 250px) !important; 
-    height: clamp(180px, 25vw, 250px) !important;
-    /* Extra glow for the large logo */
-    filter: brightness(1.2) drop-shadow(0 0 30px rgba(0, 210, 255, 0.6)) !important;
-}
-/* --- 1. Update Light Theme Variables --- */
-[data-theme="light"] {
-    --bg-color: #f8fafc;
-    --card-bg: rgba(255, 255, 255, 0.9);
-    --text-main: #1e293b;  /* Deep navy/black for "SAFE" text */
-    --text-dim: #64748b;   /* Slate gray for "Encryption Active" */
-    --accent: #ff4b5c;
-    --input-border: #e2e8f0;
-    --glass-border: rgba(0, 0, 0, 0.08);
-    --accent-blue: #3b82f6;
+/* --- B. Logo Inside Splash Screen (Enlarged) --- */
+.logo-circle {
+    width: 120px;
+    height: 120px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-/* --- Header Title Branding --- */
+.logo-circle .main-logo {
+    /* Large scale for the entrance animation */
+    width: clamp(180px, 25vw, 250px) !important; 
+    height: auto !important;
+    filter: brightness(1.2) drop-shadow(0 0 30px rgba(0, 210, 255, 0.6)) !important;
+}
+
+/* --- C. Header Typography --- */
 .header-title {
     font-size: 26px;
     font-weight: 900;
-    letter-spacing: 3px; /* Professional wide tracking */
-    /* This variable handles Light/Dark switch for "SAFE" */
-    color: var(--text-main) !important; 
-    transition: color 0.4s ease;
+    letter-spacing: 3px;
     text-transform: uppercase;
+    color: var(--text-main) !important;
     margin-top: 10px;
 }
 
-/* This targets the "GUARD" part */
 .header-title span {
-    color: var(--accent-blue) !important; /* Always stays Blue */
+    color: var(--accent-blue) !important;
 }
 
-/* Fixed Status Text for Light Mode */
+/* ============================================================
+   4. SYSTEM STATUS INDICATORS
+   ============================================================ */
 .status-text {
     font-size: 0.75rem;
     letter-spacing: 2px;
-    /* Uses variable so it turns gray in light mode instead of staying white */
-    color: var(--text-dim) !important; 
+    color: var(--text-dim) !important;
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 }
 
-/* Ensure the dot is visible in both modes */
-.dot {    height: 8px;
+.dot {
+    height: 8px;
     width: 8px;
-    background-color: #00ff88; /* Green */
+    background-color: #00ff88;
     border-radius: 50%;
-    display: inline-block;
     box-shadow: 0 0 10px #00ff88;
 }
 
-/* --- 3. Adjust Logo Area for Light Mode --- */
-[data-theme="light"] .logo-area {
-    background: #ffffff !important;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05) !important;
-    border: 1px solid #e2e8f0 !important;
+.logo-shimmer {
+    position: absolute; 
+    top: 0; left: -150%; 
+    width: 50%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transform: skewX(-20deg); 
+    animation: shimmer 3s infinite;
 }
 
-/* Make sure the medical cross doesn't have a dark glow in light mode */
+@keyframes shimmer { 100% { left: 250%; } }
+
+/* ============================================================
+   5. LIGHT MODE SPECIFIC OVERRIDES
+   ============================================================ */
+[data-theme="light"] .logo-area {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05) !important;
+}
+
 [data-theme="light"] .main-logo {
     filter: none !important;
 }
 
-.logo-shimmer {
-    position: absolute; top: 0; left: -150%; width: 50%; height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-    transform: skewX(-20deg); animation: shimmer 3s infinite;
+/* ============================================================
+   6. BACKGROUND DECORATIONS
+   ============================================================ */
+.bg-blur-circle {
+    position: fixed !important;
+    z-index: -1;
+    pointer-events: none;
+    filter: blur(100px);
+    will-change: transform;
 }
-
-@keyframes shimmer { 100% { left: 250%; } }
-.header h1 { font-size: 26px; font-weight: 700; margin: 10px 0 5px; letter-spacing: 2px; }
-.status-text { font-size: 0.75rem; letter-spacing: 2px; color: var(--text-dim); margin-top: 10px; }
-
-
 /* ============================================================
    SIGNUP PAGE LIGHT MODE ADJUSTMENTS
    ============================================================ */

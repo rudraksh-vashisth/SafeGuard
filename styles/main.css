@@ -21,18 +21,21 @@
 /* ============================================================
    2. FOUNDATION (MOBILE & LAPTOP OPTIMIZED)
    ============================================================ */
-/* --- 🛡️ GLOBAL VIEWPORT LOCK --- */
-/* --- 🛡️ FOUNDATION: TOTAL SCREEN LOCK --- */
+
 html, body {
     margin: 0;
     padding: 0;
     width: 100%;
     height: 100%;
-    /* 100dvh ensures the mobile address bar never cuts your buttons */
+    /* 🛡️ 100dvh handles mobile browser bars perfectly */
     height: 100dvh; 
-    /* THIS STOPS THE BACKGROUND SLIDING */
+    
+    /* 🛡️ FIXED: Locks the root layer so the background never slides */
     overflow: hidden !important; 
     position: fixed; 
+    
+    /* 🛡️ FIXED: Specifically stops the "Rubber-band" / "Bounce" effect at the root */
+    overscroll-behavior-y: none; 
 }
 
 body {
@@ -41,9 +44,9 @@ body {
     display: flex;
     flex-direction: column;
     
-    /* PREVENTS ELASTIC BOUNCE (Rubber-banding) */
-    overscroll-behavior: none;
-    touch-action: none; 
+    /* 🛡️ FIXED: Allow vertical touch movement for the form itself, 
+       but the "overscroll-behavior" above will stop the background sliding */
+    touch-action: pan-y; 
 
     /* YOUR ORIGINAL MESH GRADIENT */
     background: radial-gradient(circle at 0% 0%, #0f1115 0%, transparent 50%),
