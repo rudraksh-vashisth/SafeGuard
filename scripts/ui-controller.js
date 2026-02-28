@@ -1,7 +1,9 @@
 /**
- * 1. IMMEDIATE THEME ENGINE
- * Runs immediately to prevent "flash of wrong theme"
+ * SafeGuard UI Controller - Professional Edition
+ * Handles: Theme Switching, Splash Screen Staging, and Anti-Clipping Centering.
  */
+
+// 1. IMMEDIATE THEME ENGINE
 (function () {
     const savedTheme = localStorage.getItem('theme') || 'dark';
     document.documentElement.setAttribute('data-theme', savedTheme);
@@ -15,51 +17,60 @@ document.addEventListener('DOMContentLoaded', () => {
     const mainContent = document.getElementById('main-content');
 
     /**
-     * 2. SPLASH SCREEN LOGIC
-     * Handles the animated pop-up entrance
+     * 2. SPLASH SCREEN & ANTI-CLIPPING ENGINE
+     * Manages the transition and resets scroll to prevent "cutting from above".
      */
     if (splash) {
-        // Function to transition from splash to main app (UPDATED SECTION)
         const startApp = () => {
-            if (splash.classList.contains('fade-out')) return; // Prevent double trigger
-            
+            if (splash.classList.contains('fade-out')) return;
+
+            // 🛡️ STEP A: Prepare the card behind the splash screen
+            if (mainContent) {
+                mainContent.classList.remove('hidden');
+                
+                // CRITICAL FIX: Force flex and reset scroll position to the absolute top
+                // This prevents the "cutting from above" glitch on long forms
+                mainContent.style.display = 'flex'; 
+                mainContent.scrollTop = 0; 
+                window.scrollTo(0, 0);
+            }
+
+            // 🛡️ STEP B: Start fading the splash screen
             splash.classList.add('fade-out');
 
+            // 🛡️ STEP C: Reveal the card smoothly
             setTimeout(() => {
                 splash.style.display = 'none';
                 if (mainContent) {
-                    // 1. Remove the hidden state
-                    mainContent.classList.remove('hidden');
-                    
-                    // 2. FORCE FLEX LAYOUT: Ensures centering logic is applied before the card is drawn
-                    mainContent.style.display = 'flex'; 
-
-                    // 3. Trigger the entrance animation on the next animation frame to prevent layout glitch
+                    /**
+                     * requestAnimationFrame ensures the browser has calculated the 
+                     * "margin: auto" centering before the animation starts.
+                     */
                     requestAnimationFrame(() => {
                         mainContent.classList.add('show-app');
-                        // Ensure page starts at the top (crucial for mobile refresh)
-                        window.scrollTo(0, 0);
+                        // Second pass scroll reset for stubborn mobile browsers
+                        mainContent.scrollTop = 0;
                     });
                 }
-            }, 800); // Matches the fade-out duration
+            }, 600); // Trigger slightly before splash is fully gone
         };
 
-        // Wait 3.5 seconds to allow the staggered text to finish animating
-        window.addEventListener('load', () => {
-            setTimeout(startApp, 3500); 
-        });
+        // Delay to showcase the high-end "Welcome" branding
+        setTimeout(startApp, 3500);
 
-        // SAFETY BACKUP: If window 'load' hangs, force start after 5 seconds
-        setTimeout(startApp, 5000);
+        // Fallback: If page takes too long to load, the timeout above still triggers
+        window.addEventListener('load', () => {});
     } else {
+        // Fallback for pages without a splash screen (like Dashboard)
         if (mainContent) {
             mainContent.classList.remove('hidden');
-            mainContent.style.opacity = "1";
+            mainContent.style.display = 'flex';
+            mainContent.classList.add('show-app');
         }
     }
 
     /**
-     * 3. THEME TOGGLE LOGIC (Keep existing)
+     * 3. THEME TOGGLE LOGIC
      */
     const updateIcon = (theme) => {
         if (!themeIcon) return;

@@ -4,83 +4,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SafeGuard | Login</title>
+    <title>SafeGuard | Secure Login</title>
 
+    <!-- Meta Tags for Professionalism -->
+    <meta name="description" content="SafeGuard - Professional Women Safety and Emergency Response System">
+    <meta name="theme-color" content="#0f1115">
 
+    <!-- Favicon (Corrected path for root) -->
+    <link rel="icon" type="image/png" href="assets/images/Logo.png">
+
+    <!-- External Libraries -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    <link rel="icon" type="image/png" href="../assets/images/Logo.png">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+    <!-- Modular CSS -->
     <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="styles/components.css">
     <link rel="stylesheet" href="styles/animations.css">
-
 </head>
 
 <body>
-    <!-- SPLASH SCREEN OVERLAY -->
-<div id="splash-screen">
-    <div class="splash-content">
-        <!-- Bouncing Logo -->
-        <div class="logo-circle">
-            <div class="inner-pulse"></div>
-            <img src="assets/images/Logo.png" alt="SafeGuard Logo">
-        </div>
 
-        <!-- Staggered Text -->
-        <div class="welcome-container">
-            <p class="welcome-subtext">Welcome to</p>
-            <h1 class="welcome-main-text">SAFE<span style="color: var(--accent-blue, #00d2ff);">GUARD</span></h1>
-        </div>
+    <!-- 1. SPLASH SCREEN OVERLAY (PERFECTLY CENTERED) -->
+    <div id="splash-screen">
+        <div class="splash-content">
+            <!-- Animated Entrance Logo -->
+            <div class="logo-circle">
+                <div class="inner-pulse"></div>
+                <img src="assets/images/Logo.png" alt="SafeGuard Shield Logo">
+            </div>
 
-        <!-- Progress Line -->
-        <div class="loading-bar-container">
-            <div class="loading-bar-progress"></div>
+            <!-- Staggered Branding Reveal -->
+            <div class="welcome-container">
+                <p class="welcome-subtext">Welcome to</p>
+                <h1 class="welcome-main-text">SAFE<span style="color: var(--accent-blue, #00d2ff);">GUARD</span></h1>
+            </div>
+
+            <!-- Futuristic Loading Sequence -->
+            <div class="loading-bar-container">
+                <div class="loading-bar-progress"></div>
+            </div>
         </div>
     </div>
-</div>
 
-    <!-- 2. MAIN CONTENT (ONLY ONE WRAPPER) -->
-    <div class="auth-wrapper hidden" id="main-content">
-        <!-- ANIMATED BACKGROUND ELEMENTS -->
+    <!-- 2. MAIN SYSTEM INTERFACE (Hidden during Splash) -->
+    <main class="auth-wrapper hidden" id="main-content">
+
+        <!-- Dynamic Background Mesh Elements -->
         <div class="bg-blur-circle circle-1"></div>
         <div class="bg-blur-circle circle-2"></div>
 
-        <!-- AUTH CARD -->
-        <div class="auth-card">
-            <button id="theme-toggle" class="theme-btn" title="Toggle Light/Dark Mode">
+        <!-- AUTHENTICATION CARD -->
+        <section class="auth-card">
+
+            <!-- THEME SWITCHER (Top Right) -->
+            <button id="theme-toggle" class="theme-btn" aria-label="Toggle Light/Dark Mode">
                 <i class="fa-solid fa-moon" id="theme-icon"></i>
             </button>
 
-            <div class="header">
+            <!-- CARD HEADER -->
+            <header class="header">
+                <!-- Branded Logo Area with Shimmer -->
                 <div class="logo-area">
                     <div class="logo-shimmer"></div>
-                    <!-- Using your custom logo here too for consistency -->
-                    <img src="assets/images/Logo.png" class="main-logo" alt="Shield Logo">
+                    <img src="assets/images/Logo.png" class="main-logo" alt="SafeGuard Official Logo">
                 </div>
-                <h1 class="header-title">SAFEGUARD</h1>
-                <p class="status-text"><span class="dot"></span> SECURE ENCRYPTION ACTIVE</p>
-            </div>
 
-            <form id="loginForm">
+                <h1 class="header-title">SAFE<span style="color: var(--accent-blue, #00d2ff);">GUARD</span></h1>
+
+                <!-- Security Status Indicator -->
+                <div class="status-text flex items-center justify-center gap-2">
+                    <span class="dot"></span>
+                    <span class="text-[9px] font-bold tracking-[0.2em] opacity-70">SECURE ENCRYPTION ACTIVE</span>
+                </div>
+            </header>
+
+            <!-- LOGIN FORM -->
+            <form id="loginForm" class="mt-8 space-y-5">
                 <div class="input-group">
-                    <input type="email" id="email" placeholder="Email Address" required>
-                    <!-- Wrapped Password -->
-                    <div class="password-wrap">
-                        <input type="password" id="password" placeholder="Password" required>
-                        <i class="fa-solid fa-eye-slash toggle-password"></i>
+
+                    <!-- Email Field -->
+                    <div class="field-container text-left mb-4">
+                        <label for="email"
+                            class="field-label text-[#ff4b5c] font-bold text-[10px] tracking-widest uppercase mb-2 block">Email
+                            Address</label>
+                        <input type="email" id="email" placeholder="Enter your registered email" required
+                            autocomplete="email">
                     </div>
+
+                    <!-- Password Field -->
+                    <div class="field-container text-left">
+                        <label for="password"
+                            class="field-label text-gray-500 font-bold text-[10px] tracking-widest uppercase mb-2 block">Account
+                            Password</label>
+                        <div class="password-wrap">
+                            <input type="password" id="password" placeholder="••••••••" required
+                                autocomplete="current-password">
+                            <!-- Toggle Visibility Eye -->
+                            <i class="fa-solid fa-eye-slash toggle-password"></i>
+                        </div>
+                    </div>
+
                 </div>
 
-                <button type="submit" class="btn-primary btn-glow">Login</button>
+                <!-- SUBMIT ACTION -->
+                <button type="submit" class="btn-primary btn-glow mt-8">
+                    Access Command Center
+                </button>
 
-                <div class="footer-text">
-                    New here? <a href="pages/signup.html">Create Account</a>
-                </div>
+                <!-- FOOTER LINKS -->
+                <footer class="footer-text mt-6">
+                    <span class="opacity-50">New to the system?</span>
+                    <a href="pages/signup.html" class="hover:underline transition-all ml-1"
+                        style="color: var(--accent-blue, #00d2ff); font-weight: 600;">Create Account</a>
+                </footer>
             </form>
-        </div>
-    </div>
+        </section>
+    </main>
 
-    <!-- SCRIPTS AT THE END -->
+    <!-- 3. SYSTEM SCRIPTS -->
     <script src="scripts/ui-controller.js"></script>
     <script src="scripts/auth.js"></script>
 </body>

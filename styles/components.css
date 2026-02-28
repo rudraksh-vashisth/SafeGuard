@@ -25,33 +25,76 @@
 }
 
 /* ============================================================
-   2. GLOBAL & LAYOUT - CENTERING FIX
+   2. GLOBAL & LAYOUT - ANTI-CLIPPING CENTERING FIX
    ============================================================ */
 .auth-wrapper {
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: center !important; /* Centers card vertically */
-    align-items: center !important;     /* Centers card horizontally */
-    min-height: 100vh !important;       /* Uses full screen height */
-    min-height: 100dvh !important;      /* Fix for mobile browser bars */
-    width: 100% !important;
-    padding: 40px 20px !important;      /* Prevents card from touching edges */
-    box-sizing: border-box !important;
-    overflow-y: auto !important;        /* Allows scrolling if card is long */
+    display: none; 
+    opacity: 0;
+    
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100dvh; /* Dynamic viewport height */
+    
+    background-color: var(--bg-color) !important;
+    
+    /* THE FIX: Use flex-start and padding to allow scrolling without cutting */
+    flex-direction: column;
+    align-items: center;      /* Centers horizontally */
+    justify-content: flex-start; /* Starts from top to allow scrolling */
+    
+    padding: 60px 20px;       /* Increased top/bottom padding for breathing room */
+    overflow-y: auto;         /* MUST BE AUTO to allow scrolling */
+    z-index: 50;
+    transition: opacity 0.6s ease-in-out;
 }
 
-/* Ensure the card stays centered when the splash screen fades */
 .auth-wrapper.show-app {
     display: flex !important;
+    opacity: 1 !important;
 }
 
 .auth-card {
-    margin: auto !important; /* The secret for perfect centering in Flexbox */
-    /* ... keep other styles ... */
+    /* THE SECRET: margin: auto on a flex item creates "Safe Centering" */
+    /* It centers the card if it fits, but prevents clipping if it doesn't */
+    margin: auto !important; 
+    
+    position: relative !important; 
+    background: var(--card-bg) !important;
+    width: 100%;
+    max-width: 400px;
+    padding: 40px 30px;
+    border-radius: 32px;
+    text-align: center;
+    backdrop-filter: blur(var(--blur)) saturate(180%);
+    border: 1px solid var(--glass-border) !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
+    z-index: 10;
+}
+
+/* 3. LOGO FIX - Ensure the logo area doesn't push the card too high */
+.logo-area {
+    width: 85px !important;
+    height: 85px !important;
+    margin: 0 auto 15px !important; /* Reduced margin to save space */
 }
 /* ============================================================
    3. LOGO & HEADER
    ============================================================ */
+.logo-circle, .logo-area {
+    width: 90px !important;
+    height: 90px !important;
+    min-width: 90px;
+    min-height: 90px;
+}
+
+.logo-circle img, .main-logo {
+    width: 60px !important;
+    height: 60px !important;
+    object-fit: contain !important;
+    display: block;
+}
+
 .logo-area {
     width: 95px !important;
     height: 95px !important;
@@ -67,15 +110,81 @@
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
 }
 
+/* 1. This keeps the logo small (65px) only on the Login/Signup cards */
 .main-logo {
-    width: 65px !important; height: 65px !important;
-    object-fit: contain; z-index: 2;
+    width: 65px !important; 
+    height: 65px !important;
+    object-fit: contain; 
+    z-index: 2;
     filter: brightness(1.2) drop-shadow(0 0 10px rgba(0, 210, 255, 0.4)) !important;
     transition: filter 0.3s ease;
 }
 
-[data-theme="light"] .main-logo { filter: brightness(1) !important; }
-[data-theme="light"] .logo-area { background: #ffffff !important; border: 1px solid #e2e8f0 !important; }
+/* 2. THE FIX: This forces the logo to be LARGE during the Splash Screen pop-up */
+.logo-circle .main-logo {
+    /* Increased size significantly for clear viewing */
+    width: clamp(180px, 25vw, 250px) !important; 
+    height: clamp(180px, 25vw, 250px) !important;
+    /* Extra glow for the large logo */
+    filter: brightness(1.2) drop-shadow(0 0 30px rgba(0, 210, 255, 0.6)) !important;
+}
+/* --- 1. Update Light Theme Variables --- */
+[data-theme="light"] {
+    --bg-color: #f8fafc;
+    --card-bg: rgba(255, 255, 255, 0.9);
+    --text-main: #1e293b;  /* Deep navy/black for "SAFE" text */
+    --text-dim: #64748b;   /* Slate gray for "Encryption Active" */
+    --accent: #ff4b5c;
+    --input-border: #e2e8f0;
+    --glass-border: rgba(0, 0, 0, 0.08);
+    --accent-blue: #3b82f6;
+}
+
+/* --- Header Title Branding --- */
+.header-title {
+    font-size: 26px;
+    font-weight: 900;
+    letter-spacing: 3px; /* Professional wide tracking */
+    /* This variable handles Light/Dark switch for "SAFE" */
+    color: var(--text-main) !important; 
+    transition: color 0.4s ease;
+    text-transform: uppercase;
+    margin-top: 10px;
+}
+
+/* This targets the "GUARD" part */
+.header-title span {
+    color: var(--accent-blue) !important; /* Always stays Blue */
+}
+
+/* Fixed Status Text for Light Mode */
+.status-text {
+    font-size: 0.75rem;
+    letter-spacing: 2px;
+    /* Uses variable so it turns gray in light mode instead of staying white */
+    color: var(--text-dim) !important; 
+}
+
+/* Ensure the dot is visible in both modes */
+.dot {    height: 8px;
+    width: 8px;
+    background-color: #00ff88; /* Green */
+    border-radius: 50%;
+    display: inline-block;
+    box-shadow: 0 0 10px #00ff88;
+}
+
+/* --- 3. Adjust Logo Area for Light Mode --- */
+[data-theme="light"] .logo-area {
+    background: #ffffff !important;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05) !important;
+    border: 1px solid #e2e8f0 !important;
+}
+
+/* Make sure the medical cross doesn't have a dark glow in light mode */
+[data-theme="light"] .main-logo {
+    filter: none !important;
+}
 
 .logo-shimmer {
     position: absolute; top: 0; left: -150%; width: 50%; height: 100%;
@@ -86,6 +195,47 @@
 @keyframes shimmer { 100% { left: 250%; } }
 .header h1 { font-size: 26px; font-weight: 700; margin: 10px 0 5px; letter-spacing: 2px; }
 .status-text { font-size: 0.75rem; letter-spacing: 2px; color: var(--text-dim); margin-top: 10px; }
+
+
+/* ============================================================
+   SIGNUP PAGE LIGHT MODE ADJUSTMENTS
+   ============================================================ */
+
+/* 1. Fix the "Join SafeGuard" Title & Subtext */
+.header h1 {
+    color: var(--text-main) !important; /* Turns dark in Light Mode */
+    transition: color 0.4s ease;
+}
+
+.header p {
+    color: var(--text-dim) !important; /* Turns slate gray in Light Mode */
+    transition: color 0.4s ease;
+}
+
+/* 2. Fix the Password Checklist Text Visibility */
+.requirement span {
+    color: var(--text-dim); /* Base gray color */
+    transition: color 0.3s ease;
+}
+
+/* When a requirement is met (valid state) */
+.requirement.valid span {
+    color: var(--text-main) !important; /* Turns dark/white based on theme */
+    font-weight: 500;
+}
+
+/* 3. Adjust the Search Bar for Light Mode (If not already done) */
+[data-theme="light"] .iti__search-input {
+    background: #f1f5f9 !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #1e293b !important;
+}
+
+/* 4. Ensure the dynamic hint remains urgent but readable */
+#main-hint {
+    /* Keep the red accent color, but ensure it uses the variable if needed */
+    color: var(--accent) !important; 
+}
 
 /* ============================================================
    4. INPUTS & BUTTONS
@@ -122,30 +272,25 @@
 /* ============================================================
    5. PHONE LIBRARY (ITI) - ENTERPRISE THEME INTEGRATION
    ============================================================ */
-
-/* 1. The Main Wrapper - FIXED: Removed white strip background */
 .iti { 
     width: 100% !important; 
     position: relative !important; 
     margin-bottom: 12px !important; 
     display: block !important;
-    background-color: transparent !important; /* Prevents white flash on refresh */
+    background-color: transparent !important; 
 }
 
-/* 2. The Phone Input Field */
 .iti input { 
     width: 100% !important;
     height: 52px !important;
-    padding-left: 85px !important; /* Space for Flag + Dial Code */
+    padding-left: 85px !important; 
     box-sizing: border-box !important;
     background-color: var(--bg-color) !important;
     color: var(--text-main) !important;
     border: 1px solid var(--input-border) !important;
     border-radius: 12px !important;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-/* 3. The Dropdown Container (Main Box) */
 .iti__country-list {
     position: absolute !important;
     inset-inline: 0 !important;
@@ -155,15 +300,14 @@
     background-color: var(--card-bg) !important;
     color: var(--text-main) !important;
     border: 1px solid var(--input-border) !important;
-    backdrop-filter: blur(25px) !important; /* Premium Glassmorphism */
+    backdrop-filter: blur(25px) !important;
     border-radius: 16px !important;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7) !important;
-    padding: 0 !important; /* Critical: Removes top white gap */
+    padding: 0 !important; 
     overflow-x: hidden !important;
     z-index: 10000 !important;
 }
 
-/* 4. Search UI - FIXED: Removed internal white containers */
 .iti__search-container, 
 .iti__dropdown-content {
     background-color: var(--card-bg) !important;
@@ -180,15 +324,14 @@
     background: var(--bg-color) !important;
     color: var(--text-main) !important;
     border: none !important; 
-    border-bottom: 1px solid var(--input-border) !important; /* Clean divider */
-    border-radius: 0 !important; /* Sits flush with the top corners */
+    border-bottom: 1px solid var(--input-border) !important; 
+    border-radius: 0 !important; 
     outline: none !important;
     box-shadow: none !important;
     box-sizing: border-box !important;
     font-size: 15px !important;
 }
 
-/* 5. List Items & Interaction */
 .iti__country { 
     padding: 12px 15px !important; 
     display: flex !important; 
@@ -197,16 +340,9 @@
     transition: background 0.2s ease;
 }
 
-.iti__country:hover { 
-    background-color: rgba(255, 255, 255, 0.08) !important; 
-}
+.iti__country:hover { background-color: rgba(255, 255, 255, 0.08) !important; }
+.iti__dial-code { color: var(--text-dim) !important; margin-left: auto !important; }
 
-.iti__dial-code { 
-    color: var(--text-dim) !important; 
-    margin-left: auto !important; 
-}
-
-/* 6. Selected Flag Area */
 .iti__selected-flag {
     background-color: transparent !important;
     border-radius: 12px 0 0 12px !important;
@@ -214,7 +350,6 @@
     width: 75px !important;
 }
 
-/* 7. Sleek Custom Scrollbar */
 .iti__country-list::-webkit-scrollbar { width: 5px; }
 .iti__country-list::-webkit-scrollbar-track { background: transparent; }
 .iti__country-list::-webkit-scrollbar-thumb { 
@@ -222,33 +357,10 @@
     border-radius: 10px; 
 }
 
-/* 8. Light Theme Support Overrides */
-[data-theme="light"] .iti__country-list,
-[data-theme="light"] .iti__search-container { 
-    background-color: #ffffff !important; 
-}
-
-[data-theme="light"] .iti__search-input { 
-    background: #f8fafc !important; 
-    color: #000000 !important; 
-}
-
-[data-theme="light"] .iti__country:hover { 
-    background-color: #f1f5f9 !important; 
-}
-
-/* 6. DARK MINIMALIST SCROLLBAR */
-.iti__country-list::-webkit-scrollbar { width: 4px; }
-.iti__country-list::-webkit-scrollbar-track { background: transparent; }
-.iti__country-list::-webkit-scrollbar-thumb { 
-    background: var(--accent-blue); 
-    border-radius: 10px; 
-}
-
-/* 7. THEME SYNC */
 [data-theme="light"] .iti__country-list,
 [data-theme="light"] .iti__search-container { background-color: #ffffff !important; }
-[data-theme="light"] .iti__search-input { background: #f8fafc !important; color: #000; }
+[data-theme="light"] .iti__search-input { background: #f8fafc !important; color: #000000 !important; }
+[data-theme="light"] .iti__country:hover { background-color: #f1f5f9 !important; }
 
 /* ============================================================
    6. SPLASH SCREEN & ANIMATIONS
@@ -277,31 +389,6 @@
 .hidden { display: none !important; }
 .show-app { display: flex !important; animation: popIn 0.8s cubic-bezier(0.26, 0.53, 0.74, 1.48) forwards; }
 
-/* 1. Updated Wrapper: Allows scrolling if the card is too tall */
-.auth-wrapper {
-    display: flex !important;
-    justify-content: center !important;
-    align-items: flex-start !important; /* Changed from center to top */
-    min-height: 100vh !important;
-    padding: 40px 20px !important; /* Adds space at top and bottom */
-    background-color: var(--bg-color) !important;
-    width: 100%;
-    position: relative;
-    overflow-y: auto !important; /* Enable scrolling */
-}
-
-/* 2. Updated Card: Ensure it doesn't get cut off */
-.auth-card {
-    position: relative !important; 
-    background: var(--card-bg) !important;
-    width: 90% !important;
-    max-width: 400px !important;
-    padding: 40px 30px !important; /* Slightly reduced padding to save space */
-    border-radius: 32px !important;
-    margin: auto; /* Keeps it centered when scrolling */
-    /* ... rest of your existing card styles ... */
-}
-
 /* ============================================================
    7. THEME TOGGLE & DECORATIONS
    ============================================================ */
@@ -317,7 +404,7 @@
     position: absolute; border-radius: 50%; filter: blur(100px); z-index: 1;
     opacity: 0.25; animation: floatBg 15s infinite alternate;
 }
-.circle-1 { width: 450px; height: 450px; background: var(--accent); top: -200px; left: -200px; }
+.circle-1 { width: 500px; height: 500px; background: var(--accent); top: -200px; left: -200px; }
 .circle-2 { width: 400px; height: 400px; background: var(--accent-blue); bottom: -150px; right: -150px; }
 
 @keyframes floatBg { 0% { transform: translate(0,0); } 100% { transform: translate(80px, 120px) scale(1.1); } }
@@ -326,125 +413,118 @@
 @keyframes popIn { 0% { opacity: 0; transform: scale(0.9) translateY(30px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
 
 /* ============================================================
-   8. PASSWORD SECURITY & CHECKLIST STYLING
+   8. PASSWORD SECURITY & CHECKLIST STYLING (PROFESSIONAL)
    ============================================================ */
 
-/* 1. PASSWORD INPUT WRAPPER & TOGGLE */
+/* Field Labels - Left Aligned & Minimalist */
+.field-label {
+    text-align: left !important;
+    display: block !important;
+    width: 100% !important;
+    font-size: 10px !important; 
+    font-weight: 700 !important;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: #ff4b5c; /* Accent color */
+    margin-bottom: 6px !important;
+    padding-left: 2px;
+}
+
 .password-wrap {
     position: relative;
     width: 100%;
+    margin-bottom: 8px;
 }
 
+/* Perfecting the Input Text Alignment */
+.password-wrap input {
+    padding-right: 45px !important;
+    text-align: left !important;
+    font-size: 14px !important;
+}
+
+/* Centered Eye Icon */
 .toggle-password {
     position: absolute;
     right: 15px;
     top: 50%;
-    transform: translateY(-50%); /* Centered perfectly in the input field */
+    transform: translateY(-50%); 
     cursor: pointer;
     color: var(--text-dim);
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     z-index: 10;
-    transition: color 0.3s ease;
+    transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .toggle-password:hover {
-    color: var(--accent);
+    color: var(--accent-blue);
 }
 
-/* Ensure typed text doesn't hide behind the eye icon */
-.password-wrap input {
-    padding-right: 45px !important;
-    text-align: left !important;
-}
+/* --- THE REAL-TIME CHECKLIST UI --- */
 
-/* 2. LABELS AND ALIGNMENT */
-.field-label {
-    text-align: left !important;
-    display: block;
-    width: 100%;
-    font-size: 0.7rem !important; /* Smaller, more professional text */
-    letter-spacing: 0.5px;
-}
-
-/* Ensure all inputs in this group are left aligned */
-.input-group input {
-    text-align: left !important;
-}
-
-/* 3. DYNAMIC HINT (TOP OF CHECKLIST) */
-#main-hint {
-    color: var(--accent); /* SafeGuard Red/Orange */
-    font-size: 0.7rem;
-    font-weight: 600;
-    height: 14px; /* Prevents layout jumping when fading */
-    margin-bottom: 12px;
-    display: block;
-    text-align: left !important;
-    transition: opacity 0.3s ease;
-}
-
-/* 4. REAL-TIME CHECKLIST CONTAINER */
 #password-requirements {
-    margin-top: 10px;
-    padding-left: 5px;
-    text-align: left !important;
+    margin-top: 12px !important;
+    margin-bottom: 20px !important;
+    padding-left: 4px;
+    text-align: left !important; /* Strictly left-aligned */
     transition: all 0.4s ease;
+}
+
+/* Dynamic Hint at the top of the list */
+#main-hint {
+    color: var(--accent); 
+    font-size: 10px !important;
+    font-weight: 700;
+    height: 14px; 
+    margin-bottom: 10px;
+    display: block;
+    text-align: left !important;
+    letter-spacing: 0.3px;
+    transition: opacity 0.3s ease, color 0.3s ease;
 }
 
 .requirement {
     display: flex;
     align-items: center;
-    gap: 10px;
-    font-size: 0.75rem;
-    color: var(--text-dim); /* Default gray */
-    margin-bottom: 6px;
+    gap: 12px;
+    font-size: 11px !important; /* Smaller text for professional look */
+    color: var(--text-dim); 
+    margin-bottom: 6px !important; 
     transition: all 0.3s ease;
+    opacity: 0.7;
 }
 
 .requirement i {
-    font-size: 0.65rem; /* Smaller circle icons */
+    font-size: 9px !important; /* Minimalist circles */
     transition: all 0.3s ease;
 }
 
-.requirement span {
-    font-size: 0.7rem; /* Matches your screenshot size precisely */
-}
+/* --- VALID STATE (Success state) --- */
 
-/* 5. VALID STATE (Applied via JS when criteria are met) */
 .requirement.valid {
-    color: #ffffff !important; /* Text turns white */
+    color: #ffffff !important; 
+    opacity: 1;
 }
 
 .requirement.valid i {
-    color: #4ade80 !important; /* Icon turns premium green */
+    color: #4ade80 !important; 
 }
 
-/* Icon Swap: Changes hollow circle to solid checkmark using Unicode */
+/* Icon Morphing: Circle to Checkmark */
 .requirement.valid i::before {
-    content: "\f058"; /* FontAwesome Solid Check Circle code */
+    content: "\f058"; 
     font-family: "Font Awesome 6 Free";
     font-weight: 900;
 }
 
-/* 6. VISUAL FEEDBACK (INPUT GLOW) */
+/* Subtle border glow when the field is valid */
 .input-group input:focus:valid {
-    border-color: #4ade8055;
-    box-shadow: 0 0 15px rgba(74, 222, 128, 0.1);
+    border-color: rgba(74, 222, 128, 0.3);
+    box-shadow: 0 0 15px rgba(74, 222, 128, 0.05);
 }
-
-#password-requirements {
-    margin-top: 8px !important;
-    margin-bottom: 15px !important; /* Reduced from 30px */
-}
-
-.requirement {
-    margin-bottom: 4px !important; /* Tighter spacing between checks */
-}
-
 /* ============================================================
    DASHBOARD SPECIFIC STYLES
    ============================================================ */
-
 .dashboard-header {
     padding: 30px 20px;
     display: flex;
@@ -474,7 +554,6 @@
 }
 .status-pill p { font-size: 0.7rem; letter-spacing: 1px; color: #00ff88; margin: 0; font-weight: 700; }
 
-/* THE SOS BUTTON ENGINE */
 .sos-container { text-align: center; margin-top: 20px; }
 .sos-ring {
     position: relative;
@@ -494,7 +573,6 @@
 }
 .btn-sos-main:active { transform: scale(0.9); }
 
-/* Bottom Nav */
 .bottom-nav {
     position: fixed; bottom: 0; width: 100%;
     background: var(--card-bg);
@@ -509,7 +587,6 @@
 .nav-item i { font-size: 1.2rem; display: block; margin-bottom: 4px; }
 .nav-item span { font-size: 0.7rem; font-weight: 500; }
 
-/* Grid */
 .action-grid {
     display: grid; grid-template-columns: 1fr 1fr;
     gap: 15px; padding: 20px; margin-bottom: 100px;
