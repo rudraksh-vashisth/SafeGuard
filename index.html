@@ -17,16 +17,27 @@
 </head>
 
 <body>
-    <!-- 1. SPLASH SCREEN OVERLAY (DIRECT CHILD OF BODY) -->
-    <div id="splash-screen">
-        <div class="splash-content">
-            <div class="logo-circle">
-                <div class="inner-pulse"></div>
-                <img src="assets/images/Logo.png" alt="SafeGuard Logo">
-            </div>
-            <h2 class="splash-logo-text">WOMEN SAFEGUARD</h2>
+    <!-- SPLASH SCREEN OVERLAY -->
+<div id="splash-screen">
+    <div class="splash-content">
+        <!-- Bouncing Logo -->
+        <div class="logo-circle">
+            <div class="inner-pulse"></div>
+            <img src="assets/images/Logo.png" alt="SafeGuard Logo">
+        </div>
+
+        <!-- Staggered Text -->
+        <div class="welcome-container">
+            <p class="welcome-subtext">Welcome to</p>
+            <h1 class="welcome-main-text">SAFE<span style="color: var(--accent-blue, #00d2ff);">GUARD</span></h1>
+        </div>
+
+        <!-- Progress Line -->
+        <div class="loading-bar-container">
+            <div class="loading-bar-progress"></div>
         </div>
     </div>
+</div>
 
     <!-- 2. MAIN CONTENT (ONLY ONE WRAPPER) -->
     <div class="auth-wrapper hidden" id="main-content">

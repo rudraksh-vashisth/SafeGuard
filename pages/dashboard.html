@@ -52,9 +52,31 @@
     </style>
 </head>
 
-<body class="pb-32 overflow-x-hidden">
-    <div class="mesh-bg"></div>
+<!-- UPDATED SECURE SHIELD INTRO POPUP -->
+<div id="shield-intro" class="fixed inset-0 flex items-center justify-center z-[1000] bg-[#05060f]">
+    <!-- Start with full opacity to block the dashboard immediately -->
+    <div id="shield-backdrop" class="absolute inset-0 bg-black/80 backdrop-blur-2xl transition-opacity duration-1000"></div>
+    
+    <div class="relative flex flex-col items-center">
+        <!-- Shield Icon (Removed opacity-0 so it's ready to animate) -->
+        <div id="shield-icon" class="scale-50 opacity-0 transition-all duration-700 ease-out">
+            <div class="relative">
+                <div class="absolute inset-0 bg-blue-500/30 rounded-full blur-3xl animate-pulse"></div>
+                <i class="fa-solid fa-shield-halved text-7xl md:text-9xl text-blue-500 relative z-10 drop-shadow-[0_0_20px_rgba(59,130,246,0.8)]"></i>
+            </div>
+            <div class="absolute top-0 left-0 w-full h-[2px] bg-blue-400 shadow-[0_0_15px_#60a5fa] animate-scan-line"></div>
+        </div>
 
+        <div id="shield-text" class="mt-8 text-center opacity-0 translate-y-4 transition-all duration-700">
+            <h2 class="text-white font-black tracking-[0.3em] text-lg md:text-2xl uppercase">
+                SafeGuard Protection
+            </h2>
+            <p class="text-blue-400 font-bold text-[10px] tracking-[0.5em] uppercase mt-2">
+                System Activated & Secure
+            </p>
+        </div>
+    </div>
+</div>
     <!-- TOP NAVIGATION BAR -->
     <nav class="p-6 flex justify-between items-center max-w-7xl mx-auto">
         <div class="flex items-center gap-3">
@@ -300,53 +322,79 @@
     <script src="../scripts/emergency.js"></script>
 
     <!-- 2. Dashboard Session & UI Logic -->
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // Retrieve session data
-            const user = JSON.parse(localStorage.getItem('currentUser'));
-            const token = localStorage.getItem('token');
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- 🛡️ SECURE SHIELD INTRO LOGIC (IMMEDIATE TRIGGER) ---
+        const intro = document.getElementById('shield-intro');
+        const shieldIcon = document.getElementById('shield-icon');
+        const shieldText = document.getElementById('shield-text');
+        const shieldBackdrop = document.getElementById('shield-backdrop');
 
-            // 🔐 SECURITY GATE: Prevent unauthorized access
-            if (!user || !token) {
-                console.warn("Unauthorized access attempt. Redirecting to login.");
-                window.location.href = '../index.html';
-                return;
-            }
-
-            // --- DISPLAY USER DATA ---
-            try {
-                // Capitalize and display the first name
-                const fullName = user.fullName || "User";
-                const firstName = fullName.split(' ')[0];
-                document.getElementById('userNameDisplay').innerText = firstName;
-            } catch (err) {
-                console.error("Error displaying user name:", err);
-            }
-
-            // --- LOGOUT LOGIC ---
-            const logoutBtn = document.getElementById('logoutBtn');
-            if (logoutBtn) {
-                logoutBtn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    if (confirm("🚨 Sign out of SafeGuard Command Center?")) {
-                        // Clear all local data
-                        localStorage.removeItem('currentUser');
-                        localStorage.removeItem('token');
-                        // Redirect to root login
-                        window.location.href = '../index.html';
+        if (intro) {
+            // Use requestAnimationFrame to ensure styles apply instantly without delay
+            requestAnimationFrame(() => {
+                if (shieldBackdrop) shieldBackdrop.style.opacity = "1";
+                if (shieldIcon) {
+                    shieldIcon.style.opacity = "1";
+                    shieldIcon.style.transform = "scale(1)";
+                }
+                
+                // Stagger only the text appearance (Reduced to 200ms for snappiness)
+                setTimeout(() => {
+                    if (shieldText) {
+                        shieldText.style.opacity = "1";
+                        shieldText.style.transform = "translateY(0)";
                     }
-                });
-            }
+                }, 200);
+            });
 
-            // --- SOS BUTTON DYNAMICS ---
-            // Visual feedback when clicking SOS
-            const sosBtn = document.getElementById('sosBtn');
-            if (sosBtn) {
-                sosBtn.addEventListener('mousedown', () => sosBtn.style.transform = 'scale(0.95)');
-                sosBtn.addEventListener('mouseup', () => sosBtn.style.transform = 'scale(1)');
-            }
-        });
-    </script>
+            // Smoothly disappear after 2.5 seconds (Faster turnaround is more professional)
+            setTimeout(() => {
+                intro.classList.add('shield-hide');
+                setTimeout(() => intro.remove(), 800);
+            }, 2500);
+        }
+
+        // --- 🔐 SECURITY GATE ---
+        const user = JSON.parse(localStorage.getItem('currentUser'));
+        const token = localStorage.getItem('token');
+
+        if (!user || !token) {
+            console.warn("Unauthorized access attempt. Redirecting to login.");
+            window.location.href = '../index.html';
+            return;
+        }
+
+        // --- DISPLAY USER DATA ---
+        try {
+            const fullName = user.fullName || "User";
+            const firstName = fullName.split(' ')[0];
+            document.getElementById('userNameDisplay').innerText = firstName;
+        } catch (err) {
+            console.error("Error displaying user name:", err);
+        }
+
+        // --- LOGOUT LOGIC ---
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (confirm("🚨 Sign out of SafeGuard Command Center?")) {
+                    localStorage.removeItem('currentUser');
+                    localStorage.removeItem('token');
+                    window.location.href = '../index.html';
+                }
+            });
+        }
+
+        // --- SOS BUTTON DYNAMICS ---
+        const sosBtn = document.getElementById('sosBtn');
+        if (sosBtn) {
+            sosBtn.addEventListener('mousedown', () => sosBtn.style.transform = 'scale(0.95)');
+            sosBtn.addEventListener('mouseup', () => sosBtn.style.transform = 'scale(1)');
+        }
+    });
+</script>
 </body>
 
 </html>

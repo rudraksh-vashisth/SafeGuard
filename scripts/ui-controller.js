@@ -19,22 +19,29 @@ document.addEventListener('DOMContentLoaded', () => {
      * Handles the animated pop-up entrance
      */
     if (splash) {
-        // We use window 'load' to ensure the logo image is actually ready
-        window.addEventListener('load', () => {
-            setTimeout(() => {
-                splash.classList.add('fade-out');
+        // Function to transition from splash to main app
+        const startApp = () => {
+            if (splash.classList.contains('fade-out')) return; // Prevent double trigger
+            
+            splash.classList.add('fade-out');
 
-                setTimeout(() => {
-                    splash.style.display = 'none';
-                    if (mainContent) {
-                        mainContent.classList.remove('hidden');
-                        mainContent.classList.add('show-app');
-                    }
-                }, 800); // Matches the CSS transition duration
-            }, 2500); // How long the splash stays visible
+            setTimeout(() => {
+                splash.style.display = 'none';
+                if (mainContent) {
+                    mainContent.classList.remove('hidden');
+                    mainContent.classList.add('show-app');
+                }
+            }, 1000); // Wait for CSS transition
+        };
+
+        // ADJUSTED: Wait 3.5 seconds to allow the staggered text to finish animating
+        window.addEventListener('load', () => {
+            setTimeout(startApp, 3500); 
         });
+
+        // SAFETY BACKUP: If window 'load' hangs, force start after 5 seconds
+        setTimeout(startApp, 5000);
     } else {
-        // If there is no splash screen on this page, show content immediately
         if (mainContent) {
             mainContent.classList.remove('hidden');
             mainContent.style.opacity = "1";
@@ -42,8 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /**
-     * 3. THEME TOGGLE LOGIC
-     * Handles switching between Light and Dark modes
+     * 3. THEME TOGGLE LOGIC (Keep existing)
      */
     const updateIcon = (theme) => {
         if (!themeIcon) return;
@@ -54,7 +60,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Sync icon on page load
     updateIcon(root.getAttribute('data-theme'));
 
     if (themeToggle) {
