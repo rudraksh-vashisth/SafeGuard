@@ -21,33 +21,35 @@
 /* ============================================================
    2. FOUNDATION (MOBILE & LAPTOP OPTIMIZED)
    ============================================================ */
-
+/* --- 🛡️ GLOBAL VIEWPORT LOCK --- */
 html, body {
     margin: 0;
     padding: 0;
     width: 100%;
     height: 100%;
-    /* 🛡️ 100dvh handles mobile browser bars perfectly */
-    height: 100dvh; 
+    height: 100dvh; /* Dynamic height for mobile */
     
-    /* 🛡️ FIXED: Locks the root layer so the background never slides */
+    /* This stops the background mesh from sliding */
     overflow: hidden !important; 
     position: fixed; 
-    
-    /* 🛡️ FIXED: Specifically stops the "Rubber-band" / "Bounce" effect at the root */
-    overscroll-behavior-y: none; 
+    background-color: #05060f;
+}
+
+* {
+    box-sizing: border-box;
 }
 
 body {
     font-family: 'Inter', 'Poppins', sans-serif;
     color: white;
+    /* dvh (Dynamic Viewport Height) fixes the mobile address bar clipping issue */
+    min-height: 100vh;
+    min-height: 100dvh; 
     display: flex;
     flex-direction: column;
-    
-    /* 🛡️ FIXED: Allow vertical touch movement for the form itself, 
-       but the "overscroll-behavior" above will stop the background sliding */
-    touch-action: pan-y; 
+    overscroll-behavior-y: none;
 
+    
     /* YOUR ORIGINAL MESH GRADIENT */
     background: radial-gradient(circle at 0% 0%, #0f1115 0%, transparent 50%),
                 radial-gradient(circle at 100% 100%, #1a1d23 0%, transparent 50%),
