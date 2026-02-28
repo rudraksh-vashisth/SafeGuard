@@ -25,43 +25,30 @@
 }
 
 /* ============================================================
-   2. GLOBAL & LAYOUT
+   2. GLOBAL & LAYOUT - CENTERING FIX
    ============================================================ */
-body {
-    margin: 0; padding: 0;
-    font-family: 'Poppins', sans-serif;
-    background-color: var(--bg-color) !important;
-    color: var(--text-main);
-    transition: background-color 0.4s ease, color 0.4s ease;
-    overflow-x: hidden;
-}
-
 .auth-wrapper {
     display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
-    min-height: 100vh !important;
-    background-color: var(--bg-color) !important;
-    width: 100%;
-    position: relative;
-    overflow: hidden;
+    flex-direction: column !important;
+    justify-content: center !important; /* Centers card vertically */
+    align-items: center !important;     /* Centers card horizontally */
+    min-height: 100vh !important;       /* Uses full screen height */
+    min-height: 100dvh !important;      /* Fix for mobile browser bars */
+    width: 100% !important;
+    padding: 40px 20px !important;      /* Prevents card from touching edges */
+    box-sizing: border-box !important;
+    overflow-y: auto !important;        /* Allows scrolling if card is long */
+}
+
+/* Ensure the card stays centered when the splash screen fades */
+.auth-wrapper.show-app {
+    display: flex !important;
 }
 
 .auth-card {
-    position: relative !important; 
-    background: var(--card-bg) !important;
-    width: 90% !important;
-    max-width: 400px !important;
-    padding: 50px 40px !important;
-    border-radius: 32px !important;
-    text-align: center;
-    backdrop-filter: blur(var(--blur)) saturate(180%);
-    -webkit-backdrop-filter: blur(var(--blur)) saturate(180%);
-    border: 1px solid var(--glass-border) !important;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
-    z-index: 10;
+    margin: auto !important; /* The secret for perfect centering in Flexbox */
+    /* ... keep other styles ... */
 }
-
 /* ============================================================
    3. LOGO & HEADER
    ============================================================ */

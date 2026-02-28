@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
      * Handles the animated pop-up entrance
      */
     if (splash) {
-        // Function to transition from splash to main app
+        // Function to transition from splash to main app (UPDATED SECTION)
         const startApp = () => {
             if (splash.classList.contains('fade-out')) return; // Prevent double trigger
             
@@ -28,13 +28,23 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
                 splash.style.display = 'none';
                 if (mainContent) {
+                    // 1. Remove the hidden state
                     mainContent.classList.remove('hidden');
-                    mainContent.classList.add('show-app');
+                    
+                    // 2. FORCE FLEX LAYOUT: Ensures centering logic is applied before the card is drawn
+                    mainContent.style.display = 'flex'; 
+
+                    // 3. Trigger the entrance animation on the next animation frame to prevent layout glitch
+                    requestAnimationFrame(() => {
+                        mainContent.classList.add('show-app');
+                        // Ensure page starts at the top (crucial for mobile refresh)
+                        window.scrollTo(0, 0);
+                    });
                 }
-            }, 1000); // Wait for CSS transition
+            }, 800); // Matches the fade-out duration
         };
 
-        // ADJUSTED: Wait 3.5 seconds to allow the staggered text to finish animating
+        // Wait 3.5 seconds to allow the staggered text to finish animating
         window.addEventListener('load', () => {
             setTimeout(startApp, 3500); 
         });

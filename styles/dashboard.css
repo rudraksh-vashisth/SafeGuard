@@ -261,3 +261,26 @@ body, html {
                 transform 0.8s cubic-bezier(0.4, 0, 0.2, 1),
                 visibility 0.8s !important;
 }
+
+/* Deepens the blur effect for older mobile browsers */
+.backdrop-blur-2xl {
+    -webkit-backdrop-filter: blur(40px) saturate(150%) !important;
+    backdrop-filter: blur(40px) saturate(150%) !important;
+}
+
+/* Smooth scaling on hover for the nav items */
+nav a div {
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+nav a:hover div {
+    transform: translateY(-5px) scale(1.1);
+}
+
+/* Mobile Tweak: Ensure the nav doesn't cut pixels on very small screens */
+@media (max-width: 380px) {
+    nav {
+        width: 96% !important;
+        padding: 0 10px !important;
+    }
+}
