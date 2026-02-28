@@ -314,8 +314,10 @@ body {
 @keyframes popIn { 0% { opacity: 0; transform: scale(0.9) translateY(30px); } 100% { opacity: 1; transform: scale(1) translateY(0); } }
 
 /* ============================================================
-   8. PASSWORD TOGGLE STYLING (NEW)
+   8. PASSWORD SECURITY & CHECKLIST STYLING
    ============================================================ */
+
+/* 1. PASSWORD INPUT WRAPPER & TOGGLE */
 .password-wrap {
     position: relative;
     width: 100%;
@@ -325,12 +327,12 @@ body {
     position: absolute;
     right: 15px;
     top: 50%;
-    transform: translateY(-80%); /* Centers the eye icon in your field height */
+    transform: translateY(-50%); /* Centered perfectly in the input field */
     cursor: pointer;
     color: var(--text-dim);
     font-size: 0.9rem;
     z-index: 10;
-    transition: color 0.3s;
+    transition: color 0.3s ease;
 }
 
 .toggle-password:hover {
@@ -340,24 +342,83 @@ body {
 /* Ensure typed text doesn't hide behind the eye icon */
 .password-wrap input {
     padding-right: 45px !important;
+    text-align: left !important;
 }
 
-/* Password Hint Styling */
-.password-hint {
+/* 2. LABELS AND ALIGNMENT */
+.field-label {
+    text-align: left !important;
+    display: block;
+    width: 100%;
+    font-size: 0.7rem !important; /* Smaller, more professional text */
+    letter-spacing: 0.5px;
+}
+
+/* Ensure all inputs in this group are left aligned */
+.input-group input {
+    text-align: left !important;
+}
+
+/* 3. DYNAMIC HINT (TOP OF CHECKLIST) */
+#main-hint {
+    color: var(--accent); /* SafeGuard Red/Orange */
     font-size: 0.7rem;
-    color: var(--text-dim);
-    text-align: left;
-    margin-top: -8px;
+    font-weight: 600;
+    height: 14px; /* Prevents layout jumping when fading */
     margin-bottom: 12px;
+    display: block;
+    text-align: left !important;
+    transition: opacity 0.3s ease;
+}
+
+/* 4. REAL-TIME CHECKLIST CONTAINER */
+#password-requirements {
+    margin-top: 10px;
     padding-left: 5px;
-    line-height: 1.4;
+    text-align: left !important;
+    transition: all 0.4s ease;
 }
 
-/* Red glow if requirements aren't met (optional extra) */
-.input-group input:invalid {
-    border-color: rgba(255, 75, 92, 0.2);
+.requirement {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.75rem;
+    color: var(--text-dim); /* Default gray */
+    margin-bottom: 6px;
+    transition: all 0.3s ease;
 }
 
+.requirement i {
+    font-size: 0.65rem; /* Smaller circle icons */
+    transition: all 0.3s ease;
+}
+
+.requirement span {
+    font-size: 0.7rem; /* Matches your screenshot size precisely */
+}
+
+/* 5. VALID STATE (Applied via JS when criteria are met) */
+.requirement.valid {
+    color: #ffffff !important; /* Text turns white */
+}
+
+.requirement.valid i {
+    color: #4ade80 !important; /* Icon turns premium green */
+}
+
+/* Icon Swap: Changes hollow circle to solid checkmark using Unicode */
+.requirement.valid i::before {
+    content: "\f058"; /* FontAwesome Solid Check Circle code */
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+}
+
+/* 6. VISUAL FEEDBACK (INPUT GLOW) */
+.input-group input:focus:valid {
+    border-color: #4ade8055;
+    box-shadow: 0 0 15px rgba(74, 222, 128, 0.1);
+}
 
 /* ============================================================
    DASHBOARD SPECIFIC STYLES

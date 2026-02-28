@@ -62,53 +62,79 @@
                     <div class="phone-container">
                         <input type="tel" id="phone" name="phone" placeholder="Enter your phone number" required>
                     </div>
+                    <div class="input-group text-left"> <!-- Ensures everything inside is left-aligned -->
 
-                    <div class="password-wrap">
-                        <input type="password" id="signupPassword" placeholder="Create Password" required>
-                        <i class="fa-solid fa-eye-slash toggle-password"></i>
+                        <!-- Password Section -->
+                        <label
+                            class="field-label text-[#ff4b5c] font-bold text-[11px] tracking-wider uppercase mb-1 block">Password</label>
+                        <div class="password-wrap mb-2">
+                            <input type="password" id="signupPassword" placeholder="Create Password" required>
+                            <i class="fa-solid fa-eye-slash toggle-password"></i>
+                        </div>
+
+                        <!-- 🛑 Dynamic Validation Checklist (Small Text) -->
+                        <div id="password-requirements" class="mb-4 space-y-1">
+                            <!-- This hint changes text based on what is missing -->
+                            <p id="main-hint"
+                                class="text-[#ff4b5c] text-[10px] font-bold mb-2 transition-all duration-300">Please
+                                enter a secure password</p>
+
+                            <div class="requirement flex items-center gap-2 text-gray-500 text-[9px] opacity-80"
+                                id="req-upper">
+                                <i class="fa-regular fa-circle"></i> <span>Uppercase letter</span>
+                            </div>
+                            <div class="requirement flex items-center gap-2 text-gray-500 text-[9px] opacity-80"
+                                id="req-lower">
+                                <i class="fa-regular fa-circle"></i> <span>Lowercase letter</span>
+                            </div>
+                            <div class="requirement flex items-center gap-2 text-gray-500 text-[9px] opacity-80"
+                                id="req-number">
+                                <i class="fa-regular fa-circle"></i> <span>Number</span>
+                            </div>
+                            <div class="requirement flex items-center gap-2 text-gray-500 text-[9px] opacity-80"
+                                id="req-special">
+                                <i class="fa-regular fa-circle"></i> <span>Special character (e.g. !@#$%)</span>
+                            </div>
+                            <div class="requirement flex items-center gap-2 text-gray-500 text-[9px] opacity-80"
+                                id="req-length">
+                                <i class="fa-regular fa-circle"></i> <span>8 characters or more</span>
+                            </div>
+                        </div>
+
+                        <!-- Confirm Password Section -->
+                        <label
+                            class="field-label text-gray-500 font-bold text-[11px] tracking-wider uppercase mb-1 block">Confirm
+                            Password</label>
+                        <div class="password-wrap">
+                            <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
+                            <i class="fa-solid fa-eye-slash toggle-password"></i>
+                        </div>
                     </div>
 
-                    <!-- Wrapped Confirm Password -->
-                    <div class="password-wrap">
-                        <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
-                        <i class="fa-solid fa-eye-slash toggle-password"></i>
-                    </div>
-                    <!-- Add this line below -->
-                    <p class="password-hint">Must include: Uppercase, Number, Special character (e.g., @$!%)</p>
-                </div>
+                    <!-- 3. Scripts Order is Critical -->
+                    <!-- Library JS -->
+                    <script
+                        src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/19.2.19/js/intlTelInput.min.js"></script>
 
-                <button type="submit" class="btn-primary btn-glow">Create Account</button>
+                    <!-- Global Initialization for Phone Input -->
+                    <script>
+                        let iti; // Declare globally so auth.js can see it
+                        document.addEventListener('DOMContentLoaded', () => {
+                            const phoneInput = document.querySelector("#phone");
+                            iti = window.intlTelInput(phoneInput, {
+                                initialCountry: "in",
+                                separateDialCode: true,
+                                countrySearch: true,
+                                useFullscreenPopup: false, // Prevents search bar issue on mobile
+                                preferredCountries: ["in", "us", "gb"],
+                                utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/19.2.19/js/utils.js",
+                            });
+                        });
+                    </script>
 
-                <div class="footer-text">
-                    Already have an account? <a href="../index.html">Login</a>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- 3. Scripts Order is Critical -->
-    <!-- Library JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/19.2.19/js/intlTelInput.min.js"></script>
-
-    <!-- Global Initialization for Phone Input -->
-    <script>
-        let iti; // Declare globally so auth.js can see it
-        document.addEventListener('DOMContentLoaded', () => {
-            const phoneInput = document.querySelector("#phone");
-            iti = window.intlTelInput(phoneInput, {
-                initialCountry: "in",
-                separateDialCode: true,
-                countrySearch: true,
-                useFullscreenPopup: false, // Prevents search bar issue on mobile
-                preferredCountries: ["in", "us", "gb"],
-                utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/19.2.19/js/utils.js",
-            });
-        });
-    </script>
-
-    <!-- UI logic (Hides Splash) and Auth Logic -->
-    <script src="../scripts/ui-controller.js"></script>
-    <script src="../scripts/auth.js"></script>
+                    <!-- UI logic (Hides Splash) and Auth Logic -->
+                    <script src="../scripts/ui-controller.js"></script>
+                    <script src="../scripts/auth.js"></script>
 
 </body>
 

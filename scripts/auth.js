@@ -5,6 +5,17 @@
 
 const API_URL = 'https://safeguard-i00e.onrender.com/api' // Ensure there is no '/' at the end
 
+function toggleReqClass(id, isValid) {
+    const el = document.getElementById(id);
+    if (el) {
+        if (isValid) {
+            el.classList.add('valid');
+        } else {
+            el.classList.remove('valid');
+        }
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     // UI Element Selectors
     const signupForm = document.getElementById('signupForm');
@@ -64,7 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Listeners for phone behavior
         phoneInput.addEventListener('countrychange', syncPhoneConstraints);
-        phoneInput.addEventListener('input', function() {
+        phoneInput.addEventListener('input', function () {
             this.value = this.value.replace(/\D/g, ''); // Strictly numeric
         });
 
@@ -77,48 +88,125 @@ document.addEventListener('DOMContentLoaded', () => {
     // 2. PASSWORD VISIBILITY TOGGLE
     // ============================================================
     toggleIcons.forEach(icon => {
-        icon.addEventListener('click', function() {
+        icon.addEventListener('click', function () {
             const input = this.parentElement.querySelector('input');
             const isPassword = input.type === 'password';
-            
+
             input.type = isPassword ? 'text' : 'password';
             this.classList.toggle('fa-eye-slash', !isPassword);
             this.classList.toggle('fa-eye', isPassword);
         });
     });
 
+
     // ============================================================
-    // 3. SIGNUP LOGIC (Security & Data Integrity)
+    // SIGNUP LOGIC (Security, Real-time Validation & Submission)
     // ============================================================
     if (signupForm) {
+        const passwordInput = document.getElementById('signupPassword');
+        const confirmInput = document.getElementById('confirmPassword');
+        const submitBtn = signupForm.querySelector('button[type="submit"]');
+        const mainHint = document.getElementById('main-hint');
+
+        // 1. REAL-TIME PASSWORD CHECKLIST CRITERIA
+        const criteria = {
+            upper: /[A-Z]/,
+            lower: /[a-z]/,
+            number: /[0-9]/,
+            special: /[!@#$%^&*(),.?":{}|<>]/,
+            length: /.{8,}/ // Locked at 8 characters
+        };
+
+        const updateChecklist = () => {
+            const val = passwordInput.value;
+
+            // Run individual tests
+            const res = {
+                upper: criteria.upper.test(val),
+                lower: criteria.lower.test(val),
+                number: criteria.number.test(val),
+                special: criteria.special.test(val),
+                length: criteria.length.test(val)
+            };
+
+            // Helper to toggle 'valid' class on the UI rows
+            const toggleClass = (id, isValid) => {
+                const el = document.getElementById(id);
+                if (el) isValid ? el.classList.add('valid') : el.classList.remove('valid');
+            };
+
+            toggleClass('req-upper', res.upper);
+            toggleClass('req-lower', res.lower);
+            toggleClass('req-number', res.number);
+            toggleClass('req-special', res.special);
+            toggleClass('req-length', res.length);
+
+            // --- NEW: DYNAMIC HINT LOGIC (Priority Based & Left Aligned) ---
+            if (mainHint) {
+                mainHint.style.opacity = "1";
+                mainHint.classList.remove('text-green-400');
+                mainHint.classList.add('text-[#ff4b5c]'); // Default error color
+
+                if (val.length === 0) {
+                    mainHint.innerText = "Please enter a secure password";
+                } else if (!res.length) {
+                    // Tells user exactly how many more characters they need
+                    mainHint.innerText = `Missing ${8 - val.length} more characters`;
+                } else if (!res.upper) {
+                    mainHint.innerText = "Include at least one uppercase letter";
+                } else if (!res.number) {
+                    mainHint.innerText = "Include at least one numeric value";
+                } else if (!res.special) {
+                    mainHint.innerText = "Include a special character (!@#$%)";
+                } else {
+                    // All conditions met: Success state
+                    mainHint.innerText = "Security verified ✓";
+                    mainHint.classList.replace('text-[#ff4b5c]', 'text-green-400');
+                    // Fade out smoothly after a short delay
+                    setTimeout(() => {
+                        if (criteria.length.test(passwordInput.value)) mainHint.style.opacity = "0";
+                    }, 2000);
+                }
+            }
+        };
+
+        passwordInput.addEventListener('input', updateChecklist);
+
+        // 2. FORM SUBMISSION HANDLER
         signupForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            // Security Validation: Phone
+            // Security Check: Phone Validity (intl-tel-input)
             if (!iti.isValidNumber()) {
-                alert("🚨 Invalid mobile number for the selected country.");
+                alert("🚨 The mobile number is invalid for the selected country.");
                 return;
             }
 
-            // Security Validation: Password Complexity
-            const password = document.getElementById('signupPassword').value;
-            const confirm = document.getElementById('confirmPassword').value;
+            // Security Check: Password Complexity (Regex)
+            const password = passwordInput.value;
             const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
             if (!passwordRegex.test(password)) {
-                alert("🛡️ Password Security Requirement:\n• Minimum 8 characters\n• One Capital Letter\n• One Number\n• One Special Character (@$!%*?&)");
+                alert("🛡️ Security Requirement: Please fulfill all password criteria displayed in the checklist.");
                 return;
             }
 
-            if (password !== confirm) {
+            // Security Check: Password Match
+            if (password !== confirmInput.value) {
                 alert("❌ Passwords do not match.");
                 return;
             }
 
+            // --- PREPARE FOR API CALL ---
+            const originalBtnText = submitBtn.innerText;
+            submitBtn.innerText = "CREATING SHIELD...";
+            submitBtn.disabled = true;
+            submitBtn.style.opacity = "0.7";
+
             const userData = {
                 fullName: document.getElementById('fullName').value.trim(),
                 email: document.getElementById('signupEmail').value.toLowerCase().trim(),
-                phone: iti.getNumber(), // Captures full international format (+91...)
+                phone: iti.getNumber(),
                 password: password
             };
 
@@ -132,13 +220,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 const result = await response.json();
 
                 if (response.ok) {
-                    alert("✅ Account Shield Created! Please login.");
+                    alert("✅ Account Shield Activated! Redirecting to login...");
                     window.location.href = "../index.html";
                 } else {
-                    alert(`⚠️ ${result.error || "Registration failed"}`);
+                    alert(`⚠️ ${result.error || "Registry rejected by server."}`);
+                    submitBtn.innerText = originalBtnText;
+                    submitBtn.disabled = false;
+                    submitBtn.style.opacity = "1";
                 }
             } catch (err) {
-                alert("📡 Backend offline. Please start the SafeGuard Server.");
+                console.error("Network Error:", err);
+                alert("📡 Connection Failure: Backend is currently unreachable.");
+                submitBtn.innerText = originalBtnText;
+                submitBtn.disabled = false;
+                submitBtn.style.opacity = "1";
             }
         });
     }
@@ -168,7 +263,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     // SECURE STORAGE
                     localStorage.setItem('token', result.token);
                     localStorage.setItem('currentUser', JSON.stringify(result.user));
-                    
+
                     // Intelligent Redirection
                     const pathPrefix = window.location.pathname.includes('pages') ? '' : 'pages/';
                     window.location.href = `${pathPrefix}dashboard.html`;
