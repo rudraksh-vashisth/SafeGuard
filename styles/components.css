@@ -53,28 +53,27 @@
 /* ============================================================
    2. AUTH LAYOUT ENGINE (ANTI-CLIPPING & CENTERING)
    ============================================================ */
+/* This locks the background ONLY on Login and Signup pages */
+body:has(.auth-wrapper) {
+    overflow: hidden !important;
+    position: fixed;
+    width: 100%;
+}
+
 .auth-wrapper {
     position: fixed;
     inset: 0;
     width: 100%;
-    height: 100dvh; /* Dynamic viewport height for mobile bar compatibility */
-    background-color: var(--bg-color) !important;
-    
-    /* Centering Logic */
-    display: none; /* Controlled by ui-controller.js */
+    height: 100dvh;
+    display: none; /* Controlled by JS */
     flex-direction: column;
     align-items: center;
-    justify-content: flex-start; /* Required for 'margin: auto' centering */
-    
-    /* Scroll & Interaction */
-    overflow-y: auto;
+    justify-content: flex-start;
+    overflow-y: auto; /* The FORM scrolls, but the BACKGROUND stays still */
     overflow-x: hidden;
-    overscroll-behavior-y: contain; /* Prevents background sliding/bounce */
-    -webkit-overflow-scrolling: touch;
     padding: 40px 20px;
     z-index: 50;
-    opacity: 0;
-    transition: opacity 0.6s ease-in-out;
+    overscroll-behavior-y: contain;
 }
 
 .auth-wrapper.show-app {

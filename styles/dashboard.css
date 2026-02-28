@@ -1,3 +1,19 @@
+/* --- 🛡️ DASHBOARD SCROLL ENABLE --- */
+.dashboard-main {
+    display: block;
+    width: 100%;
+    min-height: 100vh;
+    overflow-y: visible; /* Allows natural scrolling */
+    padding-bottom: 120px; /* Space for the floating bottom nav */
+}
+
+/* Ensure the body allows scrolling when on the dashboard */
+body:has(.dashboard-main) {
+    overflow-y: auto !important;
+    position: relative !important;
+    height: auto !important;
+}
+
 /* ============================================================
    1. GLOBAL DASHBOARD LAYOUT & FIXES
    ============================================================ */
