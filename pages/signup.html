@@ -110,31 +110,44 @@
                             <i class="fa-solid fa-eye-slash toggle-password"></i>
                         </div>
                     </div>
+                    <!-- ... after Confirm Password wrap ... -->
+                </div> <!-- Close input-group -->
 
-                    <!-- 3. Scripts Order is Critical -->
-                    <!-- Library JS -->
-                    <script
-                        src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/19.2.19/js/intlTelInput.min.js"></script>
+                <!-- THE BUTTON MUST BE HERE -->
+                <button type="submit" class="btn-primary btn-glow mt-6">
+                    Create Account
+                </button>
 
-                    <!-- Global Initialization for Phone Input -->
-                    <script>
-                        let iti; // Declare globally so auth.js can see it
-                        document.addEventListener('DOMContentLoaded', () => {
-                            const phoneInput = document.querySelector("#phone");
-                            iti = window.intlTelInput(phoneInput, {
-                                initialCountry: "in",
-                                separateDialCode: true,
-                                countrySearch: true,
-                                useFullscreenPopup: false, // Prevents search bar issue on mobile
-                                preferredCountries: ["in", "us", "gb"],
-                                utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/19.2.19/js/utils.js",
-                            });
-                        });
-                    </script>
+                <div class="footer-text">
+                    Already have an account? <a href="../index.html">Login</a>
+                </div>
+            </form> <!-- Close signupForm -->
+        </div> <!-- Close auth-card -->
+    </div> <!-- Close auth-wrapper -->
 
-                    <!-- UI logic (Hides Splash) and Auth Logic -->
-                    <script src="../scripts/ui-controller.js"></script>
-                    <script src="../scripts/auth.js"></script>
+    <!-- 3. Scripts Order is Critical -->
+    <!-- Library JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/19.2.19/js/intlTelInput.min.js"></script>
+
+    <!-- Global Initialization for Phone Input -->
+    <script>
+        let iti; // Declare globally so auth.js can see it
+        document.addEventListener('DOMContentLoaded', () => {
+            const phoneInput = document.querySelector("#phone");
+            iti = window.intlTelInput(phoneInput, {
+                initialCountry: "in",
+                separateDialCode: true,
+                countrySearch: true,
+                useFullscreenPopup: false, // Prevents search bar issue on mobile
+                preferredCountries: ["in", "us", "gb"],
+                utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/19.2.19/js/utils.js",
+            });
+        });
+    </script>
+
+    <!-- UI logic (Hides Splash) and Auth Logic -->
+    <script src="../scripts/ui-controller.js"></script>
+    <script src="../scripts/auth.js"></script>
 
 </body>
 

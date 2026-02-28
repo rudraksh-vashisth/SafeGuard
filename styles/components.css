@@ -290,6 +290,31 @@ body {
 .hidden { display: none !important; }
 .show-app { display: flex !important; animation: popIn 0.8s cubic-bezier(0.26, 0.53, 0.74, 1.48) forwards; }
 
+/* 1. Updated Wrapper: Allows scrolling if the card is too tall */
+.auth-wrapper {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: flex-start !important; /* Changed from center to top */
+    min-height: 100vh !important;
+    padding: 40px 20px !important; /* Adds space at top and bottom */
+    background-color: var(--bg-color) !important;
+    width: 100%;
+    position: relative;
+    overflow-y: auto !important; /* Enable scrolling */
+}
+
+/* 2. Updated Card: Ensure it doesn't get cut off */
+.auth-card {
+    position: relative !important; 
+    background: var(--card-bg) !important;
+    width: 90% !important;
+    max-width: 400px !important;
+    padding: 40px 30px !important; /* Slightly reduced padding to save space */
+    border-radius: 32px !important;
+    margin: auto; /* Keeps it centered when scrolling */
+    /* ... rest of your existing card styles ... */
+}
+
 /* ============================================================
    7. THEME TOGGLE & DECORATIONS
    ============================================================ */
@@ -418,6 +443,15 @@ body {
 .input-group input:focus:valid {
     border-color: #4ade8055;
     box-shadow: 0 0 15px rgba(74, 222, 128, 0.1);
+}
+
+#password-requirements {
+    margin-top: 8px !important;
+    margin-bottom: 15px !important; /* Reduced from 30px */
+}
+
+.requirement {
+    margin-bottom: 4px !important; /* Tighter spacing between checks */
 }
 
 /* ============================================================

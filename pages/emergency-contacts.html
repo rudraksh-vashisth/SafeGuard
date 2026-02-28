@@ -1,40 +1,106 @@
-<form id="addContactForm" class="space-y-4">
-    <!-- Existing Name Input -->
-    <input type="text" id="contactName" placeholder="Guardian Name" class="w-full bg-black/40 border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-blue-400" required>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SafeGuard | Guardian Circle</title>
+    <link rel="icon" type="image/png" href="../assets/images/Logo.png">
     
-    <div class="grid grid-cols-2 gap-3">
-        <!-- Relationship Dropdown -->
-        <select id="contactRelationship" class="bg-black/40 border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-blue-400 cursor-pointer">
-            <option value="Parent">Parent</option>
-            <option value="Sibling">Sibling</option>
-            <option value="Friend">Friend</option>
-            <option value="Partner">Partner</option>
-            <option value="Other">Other</option>
-        </select>
-        
-        <!-- Priority Level -->
-        <select id="contactPriority" class="bg-black/40 border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-blue-400 cursor-pointer">
-            <option value="1">Priority 1 (Primary)</option>
-            <option value="2">Priority 2</option>
-            <option value="3">Priority 3</option>
-        </select>
-    </div>
+    <!-- Icons & Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/19.2.19/css/intlTelInput.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <!-- CSS (Correct relative paths) -->
+    <link rel="stylesheet" href="../styles/main.css">
+    <link rel="stylesheet" href="../styles/components.css">
+    <link rel="stylesheet" href="../styles/dashboard.css">
+    <link rel="stylesheet" href="../styles/contacts.css">
+    <link rel="stylesheet" href="../styles/animations.css">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-[#05060f] text-white">
+    <div class="mesh-bg"></div>
 
-    <!-- Phone Container -->
-    <div class="iti-container">
-        <input type="tel" id="contactPhone" class="w-full" required>
-    </div>
+    <main class="contacts-container px-6">
+        <header class="text-center mb-10 animate-pop-in">
+            <h1 class="text-3xl font-black tracking-widest uppercase">Guardian Circle</h1>
+            <p class="text-[10px] font-bold opacity-40 tracking-[0.3em] mt-1">TRUSTED CONTACTS MANAGEMENT</p>
+        </header>
 
-    <!-- Live Location Toggle -->
-    <div class="flex items-center justify-between p-3 glass rounded-xl border-white/5">
-        <span class="text-[11px] font-bold opacity-60">ALWAYS ALLOW LIVE TRACKING</span>
-        <label class="relative inline-flex items-center cursor-pointer">
-            <input type="checkbox" id="locationToggle" class="sr-only peer" checked>
-            <div class="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-        </label>
-    </div>
+        <!-- THE FORM YOU PROVIDED (Inside Management Card) -->
+        <div class="management-card animate-pop-in">
+            <form id="addContactForm" class="space-y-4">
+                <div class="space-y-1">
+                    <label class="text-[10px] font-bold opacity-40 ml-1">FULL NAME</label>
+                    <input type="text" id="contactName" placeholder="Guardian Name" required>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold opacity-40 ml-1">RELATIONSHIP</label>
+                        <select id="contactRelationship">
+                            <option value="Parent">Parent</option>
+                            <option value="Sibling">Sibling</option>
+                            <option value="Friend">Friend</option>
+                            <option value="Partner">Partner</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold opacity-40 ml-1">PRIORITY</label>
+                        <select id="contactPriority">
+                            <option value="1">Priority 1 (Primary)</option>
+                            <option value="2">Priority 2</option>
+                            <option value="3">Priority 3</option>
+                        </select>
+                    </div>
+                </div>
 
-    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl transition-all text-sm uppercase tracking-widest shadow-lg shadow-blue-600/20">
-        Add to Circle
-    </button>
-</form>
+                <div class="space-y-1">
+                    <label class="text-[10px] font-bold opacity-40 ml-1">MOBILE NUMBER</label>
+                    <div class="iti-container">
+                        <input type="tel" id="contactPhone" required>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between p-4 glass rounded-2xl border-white/5">
+                    <span class="text-[11px] font-bold opacity-60">ALWAYS ALLOW LIVE TRACKING</span>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="locationToggle" class="sr-only peer" checked>
+                        <div class="w-11 h-6 bg-gray-700 rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                    </label>
+                </div>
+
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-xl transition-all text-xs uppercase tracking-widest shadow-lg shadow-blue-600/20 mt-4">
+                    Add to Circle
+                </button>
+            </form>
+        </div>
+
+        <!-- LIST SECTION -->
+        <div class="flex justify-between items-center mb-6 px-2">
+            <h3 class="text-xs font-black opacity-40 tracking-widest uppercase">Your Trusted Circle</h3>
+            <span id="contactCount" class="text-[10px] bg-white/5 px-3 py-1 rounded-full border border-white/10 text-blue-400 font-bold">0/5</span>
+        </div>
+
+        <div id="contactsList" class="space-y-4">
+            <!-- JS will load contacts here -->
+        </div>
+    </main>
+
+    <!-- Bottom Nav -->
+    <nav class="fixed bottom-8 left-1/2 -translate-x-1/2 w-[92%] max-w-md h-16 glass rounded-[2rem] flex items-center justify-around px-4 z-50 border-white/5 bottom-nav-glass">
+        <a href="dashboard.html" class="nav-item-glow text-white/30 flex flex-col items-center"><i class="fa-solid fa-house"></i><span class="text-[9px] mt-1 font-bold">HOME</span></a>
+        <a href="emergency-contacts.html" class="nav-item-glow active text-blue-400 flex flex-col items-center"><i class="fa-solid fa-phone"></i><span class="text-[9px] mt-1 font-bold">CONTACTS</span></a>
+        <a href="safe-zones.html" class="nav-item-glow text-white/30 flex flex-col items-center"><i class="fa-solid fa-map-location-dot"></i><span class="text-[9px] mt-1 font-bold uppercase">Zones</span></a>
+        <a href="settings.html" class="nav-item-glow text-white/30 flex flex-col items-center"><i class="fa-solid fa-gear"></i><span class="text-[9px] mt-1 font-bold uppercase">Settings</span></a>
+    </nav>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/19.2.19/js/intlTelInput.min.js"></script>
+    <script src="../scripts/ui-controller.js"></script>
+    <script src="../scripts/contacts.js"></script>
+</body>
+</html>
