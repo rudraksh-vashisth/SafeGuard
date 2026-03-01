@@ -195,7 +195,7 @@ app.delete('/api/user/contacts/:id', async (req, res) => {
 });
 
 // ============================================================
-// 8. SECURE SOS DISPATCH
+// 8. SECURE SOS DISPATCH (With Dynamic Tracking Link)
 // ============================================================
 const sosLimiter = rateLimit({ windowMs: 60000, max: 3 });
 
@@ -206,36 +206,62 @@ app.post('/api/sos/trigger', sosLimiter, async (req, res) => {
         const decoded = jwt.verify(token, JWT_SECRET);
         const user = await User.findById(decoded.id);
 
-        if (!user || user.emergencyContacts.length === 0) return res.status(400).json({ error: "No guardians." });
+        if (!user || user.emergencyContacts.length === 0) return res.status(400).json({ error: "No guardians found in circle." });
 
-        const mapLink = `https://www.google.com/maps?q=${location.lat},${location.lng}`;
+        // 🛡️ GENERATE DYNAMIC TRACKING LINK
+        // Replace 'your-app.netlify.app' with your actual Netlify/Vercel URL
+        const trackingLink = `https://safe-guard-pgme.vercel.app/pages/track-user.html?id=${user._id}`;
+        
+        // Prepare the professional alert message
+        const alertMessage = `🚨 EMERGENCY: ${user.fullName.toUpperCase()} needs help!\nNote: ${note || 'Immediate assistance required.'}\n\nTrack Live Location: ${trackingLink}`;
+
+        // Update State & Audit Logging
         user.activeSOS = true;
         user.lastLocation = { ...location, accuracy, timestamp: timestamp || new Date() };
         user.auditLog.push({ action: "SOS_TRIGGERED", ip: req.ip });
         await user.save();
 
-        console.log(`🚨 ALERT: ${user.fullName} is in danger!`);
+        console.log(`🚨 SOS BROADCAST: ${user.fullName} | ID: ${user._id}`);
 
-        const sortedGuardians = user.emergencyContacts.sort((a, b) => a.priority - b.priority);
         if (twilioClient) {
+            const sortedGuardians = user.emergencyContacts.sort((a, b) => a.priority - b.priority);
+            
             sortedGuardians.forEach(async (g) => {
                 try {
+                    // 📞 1. Priority 1 gets a Voice Call
                     if(g.priority === 1) {
                         await twilioClient.calls.create({
-                            twiml: `<Response><Say voice="alice">Emergency alert for ${user.fullName}. Link sent to phone.</Say></Response>`,
-                            to: g.phone, from: process.env.TWILIO_PHONE_NUMBER
+                            twiml: `<Response><Say voice="alice">Emergency alert for ${user.fullName}. They are in trouble. A live tracking link has been sent to your phone. Please check your messages immediately.</Say></Response>`,
+                            to: g.phone, 
+                            from: process.env.TWILIO_PHONE_NUMBER
                         });
                     }
+                    
+                    // 📱 2. All guardians get the professional SMS with the tracking link
                     await twilioClient.messages.create({
-                        body: `🚨 SOS from ${user.fullName}: ${note || 'Help!'}. Track: ${mapLink}`,
-                        to: g.phone, from: process.env.TWILIO_PHONE_NUMBER
+                        body: alertMessage,
+                        to: g.phone, 
+                        from: process.env.TWILIO_PHONE_NUMBER
                     });
-                } catch (e) { console.error("Twilio error", e.message); }
+                    
+                } catch (e) { 
+                    console.error(`[Twilio Error] Failed to reach ${g.name}:`, e.message); 
+                }
             });
+        } else {
+            console.warn("⚠️ Twilio not configured. Alert logged to terminal only:");
+            console.log(alertMessage);
         }
-        res.json({ success: true, contactsNotified: user.emergencyContacts.length });
+
+        res.json({ 
+            success: true, 
+            message: "SOS signals broadcasted to all guardians.",
+            contactsNotified: user.emergencyContacts.length 
+        });
+
     } catch (error) {
-        res.status(401).json({ error: "SOS Error" });
+        console.error("SOS System Error:", error.message);
+        res.status(401).json({ error: "Unauthorized or SOS dispatch failed." });
     }
 });
 

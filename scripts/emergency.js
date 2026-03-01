@@ -4,10 +4,7 @@
  * Acoustic Alarms, and Real-time Geostreaming via Socket.io
  */
 
-// 1. SET THE BASE URL (Linked to your live Render Backend)
 const BASE_URL = 'https://safeguard-tce4.onrender.com';
-
-// 2. INITIALIZE SOCKET (Points to the Render Server)
 const socketInstance = typeof io !== 'undefined' ? io(BASE_URL) : null;
 
 const EmergencySystem = {
@@ -15,53 +12,42 @@ const EmergencySystem = {
     socket: socketInstance,
     alarmInstance: null,
     isProcessing: false,
-    watchId: null, // Critical for stopping the live stream
+    watchId: null,
 
-    // 1. Get high-accuracy GPS coordinates
     getCurrentLocation: () => {
         return new Promise((resolve, reject) => {
-            if (!navigator.geolocation) return reject("GPS not supported by browser.");
-
+            if (!navigator.geolocation) return reject("GPS not supported.");
             navigator.geolocation.getCurrentPosition(
-                (pos) => resolve({
-                    lat: pos.coords.latitude,
-                    lng: pos.coords.longitude,
-                    accuracy: pos.coords.accuracy
-                }),
+                (pos) => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude, accuracy: pos.coords.accuracy }),
                 (err) => reject(`GPS Error: ${err.message}`),
                 { enableHighAccuracy: true, timeout: 15000 }
             );
         });
     },
 
-    // 2. Manage Acoustic Alarm & Haptics
     toggleAlarm: (state) => {
         if (state === 'start') {
             if (!EmergencySystem.alarmInstance) {
                 EmergencySystem.alarmInstance = new Audio('../assets/sounds/alarm.mp3');
                 EmergencySystem.alarmInstance.loop = true;
             }
-            EmergencySystem.alarmInstance.play().catch(() => console.warn("Audio blocked by browser."));
-            
-            // Mobile Vibration
+            EmergencySystem.alarmInstance.play().catch(() => console.warn("Audio blocked."));
             if ("vibrate" in navigator) navigator.vibrate([500, 200, 500]);
         } else {
             if (EmergencySystem.alarmInstance) {
                 EmergencySystem.alarmInstance.pause();
                 EmergencySystem.alarmInstance.currentTime = 0;
             }
-            if ("vibrate" in navigator) navigator.vibrate(0); 
+            if ("vibrate" in navigator) navigator.vibrate(0);
         }
     },
 
-    // 3. Real-time Location Streaming (Socket.io)
     startLiveStream: (userId, userName, emergencyNote) => {
         if ("geolocation" in navigator) {
-            console.log("🛰️ Initializing Real-time Satellite Stream...");
-            
+            console.log("🛰️ Streaming Live Location to Guardians...");
             EmergencySystem.watchId = navigator.geolocation.watchPosition((position) => {
                 const data = {
-                    userId: userId,
+                    userId,
                     fullName: userName,
                     lat: position.coords.latitude,
                     lng: position.coords.longitude,
@@ -69,30 +55,22 @@ const EmergencySystem = {
                     msg: emergencyNote,
                     timestamp: new Date()
                 };
-                
-                // Emit to Render Socket Server
-                if (EmergencySystem.socket) {
-                    EmergencySystem.socket.emit('update-location', data);
-                }
-            }, (err) => console.error(err), {
-                enableHighAccuracy: true,
-                maximumAge: 0,
-                timeout: 5000
-            });
+                if (EmergencySystem.socket) EmergencySystem.socket.emit('update-location', data);
+            }, null, { enableHighAccuracy: true, maximumAge: 0, timeout: 5000 });
         }
     },
 
-    // 4. Main SOS Execution Logic
     triggerSOS: async () => {
         if (EmergencySystem.isProcessing) return;
 
         const sosBtn = document.getElementById('sosBtn');
         const noteField = document.getElementById('emergencyNote');
+        const overlay = document.getElementById('sos-overlay');
         const token = localStorage.getItem('token');
         const user = JSON.parse(localStorage.getItem('currentUser'));
 
         if (!token || !user) {
-            alert("Security Error: Session expired. Please login again.");
+            alert("Please login again.");
             window.location.href = '../index.html';
             return;
         }
@@ -101,16 +79,16 @@ const EmergencySystem = {
         EmergencySystem.updateUIState('sending');
 
         try {
-            // STEP 1: Activate Alarm
-            EmergencySystem.toggleAlarm('start');
-
-            // STEP 2: Lock GPS Coords
-            const coords = await EmergencySystem.getCurrentLocation();
+            // 🛡️ STEP 1: Show Fullscreen "SOS ACTIVATED" Overlay
+            if (overlay) overlay.classList.remove('hidden');
             
-            // STEP 3: Get Instructions
-            const noteText = noteField ? noteField.value.trim() : "No additional note.";
+            // 🔊 STEP 2: Start Alarm
+            EmergencySystem.toggleAlarm('start');
+            
+            const coords = await EmergencySystem.getCurrentLocation();
+            const noteText = noteField ? noteField.value.trim() : "EMERGENCY: Assistance Required.";
 
-            // STEP 4: API Request to Render
+            // 📡 STEP 3: API Request to Server
             const response = await fetch(`${EmergencySystem.API_URL}/sos/trigger`, {
                 method: 'POST',
                 headers: { 
@@ -130,43 +108,38 @@ const EmergencySystem = {
 
             if (response.ok) {
                 EmergencySystem.updateUIState('active');
-                
-                // STEP 5: Start Socket Streaming for Guardians
                 EmergencySystem.startLiveStream(user.id || user._id, user.fullName, noteText);
-
-                alert(`🚨 SOS BROADCASTED TO RENDER SERVER!\nGuardians notified: ${result.contactsNotified}`);
                 
-                // Automatic Call to Police (Frontend Protocol)
-                window.location.href = "tel:112";
+                // 📞 Call Authorities
+                setTimeout(() => { window.location.href = "tel:112"; }, 1500);
             } else {
-                throw new Error(result.error || "Broadcast Failed");
+                throw new Error(result.error);
             }
-
         } catch (error) {
-            alert(`SOS System Error: ${error}`);
-            EmergencySystem.toggleAlarm('stop');
-            EmergencySystem.updateUIState('idle');
+            alert(`Error: ${error}`);
+            EmergencySystem.stopSOS(); // Clean up if failed
         } finally {
             EmergencySystem.isProcessing = false;
         }
     },
 
-    // 5. Stop SOS Sequence
     stopSOS: () => {
-        if (confirm("CONFIRM SAFETY: Stop alarm and live tracking?")) {
-            EmergencySystem.toggleAlarm('stop');
+        if (confirm("Stop live tracking and alarm?")) {
+            const overlay = document.getElementById('sos-overlay');
             
+            // 1. Hide Fullscreen Overlay
+            if (overlay) overlay.classList.add('hidden');
+            
+            // 2. Stop Alarm and Tracking
+            EmergencySystem.toggleAlarm('stop');
             if (EmergencySystem.watchId !== null) {
                 navigator.geolocation.clearWatch(EmergencySystem.watchId);
                 EmergencySystem.watchId = null;
-                console.log("🛰️ Live Stream Terminated.");
             }
-
             EmergencySystem.updateUIState('idle');
         }
     },
 
-    // UI Helper
     updateUIState: (state) => {
         const sosBtn = document.getElementById('sosBtn');
         if (!sosBtn) return;
@@ -176,23 +149,22 @@ const EmergencySystem = {
             sosBtn.disabled = true;
         } else if (state === 'active') {
             sosBtn.innerText = "STOP"; 
-            sosBtn.style.background = "linear-gradient(to bottom, #10b981, #059669)"; // Green for safe
+            sosBtn.style.background = "linear-gradient(to bottom, #10b981, #059669)";
             sosBtn.disabled = false;
         } else {
             sosBtn.innerText = "SOS";
-            sosBtn.style.background = ""; // Back to red
+            sosBtn.style.background = "";
             sosBtn.disabled = false;
         }
     }
 };
 
-// --- Listeners ---
 document.addEventListener('DOMContentLoaded', () => {
     const sosBtn = document.getElementById('sosBtn');
     if (sosBtn) {
         sosBtn.addEventListener('click', () => {
             if (sosBtn.innerText === "STOP") EmergencySystem.stopSOS();
-            else EmergencySystem.triggerSOS();
+            else if (confirm("🚨 SEND SOS ALERT?")) EmergencySystem.triggerSOS();
         });
     }
 });

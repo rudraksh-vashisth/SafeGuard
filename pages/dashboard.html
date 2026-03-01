@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SafeGuard | Command Center</title>
     <link rel="icon" type="image/png" href="../assets/images/Logo.png">
-
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
     <!-- External Dependencies -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
@@ -98,15 +98,55 @@
                 <p class="text-[10px] font-bold uppercase tracking-[0.2em]">Active Shield Protection</p>
             </div>
         </header>
+        <!-- 🚨 FULLSCREEN SOS ACTIVATED OVERLAY -->
+        <div id="sos-overlay"
+            class="fixed inset-0 z-[10000] hidden flex-col items-center justify-center bg-red-950/90 backdrop-blur-xl">
+            <div class="relative w-72 h-72 md:w-96 md:h-96">
+                <!-- Background Danger Glow -->
+                <div class="absolute inset-0 bg-red-600/20 rounded-full blur-[100px] animate-pulse"></div>
 
+                <!-- Big Shield Animation -->
+                <lottie-player src="../assets/animations/shield.json" background="transparent" speed="1"
+                    style="width: 100%; height: 100%;" loop autoplay>
+                </lottie-player>
+            </div>
+
+            <div class="text-center mt-10 animate-bounce">
+                <h1
+                    class="text-white font-black text-4xl md:text-6xl tracking-[0.3em] uppercase drop-shadow-[0_0_20px_rgba(255,255,255,0.5)]">
+                    SOS ACTIVATED
+                </h1>
+                <p class="text-red-400 font-bold tracking-[0.5em] mt-4 uppercase text-xs">Guardians Notified • Tracking
+                    Live</p>
+            </div>
+
+            <!-- Stop Button to close the overlay -->
+            <button onclick="EmergencySystem.stopSOS()"
+                class="mt-16 px-10 py-3 bg-white/10 border border-white/20 rounded-full text-white font-bold text-xs hover:bg-white/20 transition-all uppercase tracking-widest">
+                I am safe (Stop Alarm)
+            </button>
+        </div>
         <!-- 2. Main SOS Area -->
         <section class="flex flex-col items-center justify-center py-4">
             <div class="relative sos-ring">
-                <div class="absolute inset-0 rounded-full border-4 border-red-500/20 animate-ping"></div>
+                <!-- Dimmed Pulse Rings -->
+                <div class="sos-pulse-1 opacity-10"></div>
+                <div class="sos-pulse-2 opacity-5"></div>
+
                 <button id="sosBtn"
-                    class="btn-sos-main w-40 h-40 md:w-48 md:h-48 bg-gradient-to-br from-red-500 to-red-700 rounded-full text-white font-black text-3xl shadow-[0_0_50px_rgba(255,75,92,0.4)] active:scale-90 transition-all border-8 border-white/5">SOS</button>
+                    class="btn-sos-main relative overflow-hidden w-40 h-40 md:w-48 md:h-48 bg-gradient-to-br from-red-600 to-red-800 rounded-full text-white font-black text-3xl shadow-[0_0_50px_rgba(220,38,38,0.3)] active:scale-90 transition-all border-8 border-white/5 group">
+
+                    <!-- Lottie visible ONLY on hover/press -->
+                    <div
+                        class="absolute inset-0 opacity-0 group-hover:opacity-40 transition-opacity duration-300 pointer-events-none">
+                        <lottie-player src="../assets/animations/shield.json" background="transparent" speed="1"
+                            style="width: 100%; height: 100%;" loop autoplay>
+                        </lottie-player>
+                    </div>
+
+                    <span class="relative z-10 transition-transform duration-300 group-hover:scale-110">SOS</span>
+                </button>
             </div>
-            <p class="text-[10px] mt-8 opacity-40 uppercase tracking-[0.3em] font-black">Hold for Emergency</p>
         </section>
 
         <!-- 3. Emergency Commands -->
@@ -127,7 +167,7 @@
                 <label class="text-[10px] font-black opacity-40 tracking-widest ml-1">EMERGENCY SITUATION NOTE</label>
                 <textarea id="emergencyNote"
                     class="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-sm text-white outline-none focus:border-blue-500 transition-all placeholder:text-gray-600 min-h-[100px] resize-none"
-                    placeholder="Ex: suspicious vehicle, being followed..."></textarea>
+                    placeholder="Describe the emergency..."></textarea>
             </div>
         </section>
 
@@ -137,7 +177,8 @@
                 class="glass p-6 rounded-[2.5rem] flex flex-col items-start gap-4 hover:bg-white/5 transition-all cursor-pointer border-white/5 group">
                 <div
                     class="w-12 h-12 bg-blue-500/20 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <i class="fa-solid fa-users-viewfinder text-blue-400 text-xl"></i></div>
+                    <i class="fa-solid fa-users-viewfinder text-blue-400 text-xl"></i>
+                </div>
                 <div>
                     <h3 class="font-bold text-lg text-white">Guardian Circle</h3>
                     <p class="text-xs opacity-50 mt-1">Live tracking with 5 trusted contacts.</p>
@@ -147,7 +188,8 @@
                 class="glass p-6 rounded-[2.5rem] flex flex-col items-start gap-4 hover:bg-white/5 transition-all cursor-pointer border-white/5 group">
                 <div
                     class="w-12 h-12 bg-green-500/20 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <i class="fa-solid fa-route text-green-400 text-xl"></i></div>
+                    <i class="fa-solid fa-route text-green-400 text-xl"></i>
+                </div>
                 <div>
                     <h3 class="font-bold text-lg text-white">Safe Route</h3>
                     <p class="text-xs opacity-50 mt-1">AI suggestions for well-lit paths.</p>
@@ -157,7 +199,8 @@
                 class="glass p-6 rounded-[2.5rem] flex flex-col items-start gap-4 hover:bg-white/5 transition-all cursor-pointer border-white/5 group">
                 <div
                     class="w-12 h-12 bg-purple-500/20 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <i class="fa-solid fa-building-shield text-purple-400 text-xl"></i></div>
+                    <i class="fa-solid fa-building-shield text-purple-400 text-xl"></i>
+                </div>
                 <div>
                     <h3 class="font-bold text-lg text-white">Nearby Help</h3>
                     <p class="text-xs opacity-50 mt-1">Locate police & medical stations.</p>
@@ -221,8 +264,7 @@
                     </div>
                 </div>
 
-                <!-- Video 5: Custom Link Card -->
-                <!-- Video 5: YouTube Short Played Internally -->
+
                 <!-- Video 5: Professional Link Card (Fixes 'Unavailable' Error) -->
                 <div class="video-card-premium group relative">
                     <!-- Clicking this link opens the video in a new tab -->
@@ -309,18 +351,18 @@
             }
 
             // 🔐 SESSION SECURITY GATE
-            const user = JSON.parse(localStorage.getItem('currentUser'));
-            const token = localStorage.getItem('token');
-            if (!user || !token) { window.location.href = '../index.html'; return; }
+            // const user = JSON.parse(localStorage.getItem('currentUser'));
+            // const token = localStorage.getItem('token');
+            // if (!user || !token) { window.location.href = '../index.html'; return; }
 
-            document.getElementById('userNameDisplay').innerText = user.fullName.split(' ')[0];
+            // document.getElementById('userNameDisplay').innerText = user.fullName.split(' ')[0];
 
-            document.getElementById('logoutBtn').addEventListener('click', () => {
-                if (confirm("Logout from SafeGuard Command Center?")) {
-                    localStorage.removeItem('currentUser'); localStorage.removeItem('token');
-                    window.location.href = '../index.html';
-                }
-            });
+            // document.getElementById('logoutBtn').addEventListener('click', () => {
+            //     if (confirm("Logout from SafeGuard Command Center?")) {
+            //         localStorage.removeItem('currentUser'); localStorage.removeItem('token');
+            //         window.location.href = '../index.html';
+            //     }
+            // });
         });
     </script>
 </body>
