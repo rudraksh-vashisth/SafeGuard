@@ -33,15 +33,28 @@ html, body {
 }
 
 body {
+    margin: 0;
+    padding: 0;
     font-family: 'Inter', 'Poppins', sans-serif;
-    color: white;
-    display: flex;
-    flex-direction: column;
-    background: radial-gradient(circle at 0% 0%, #0f1115 0%, transparent 50%),
-                radial-gradient(circle at 100% 100%, #1a1d23 0%, transparent 50%),
-                radial-gradient(circle at 50% 50%, #0d0e12 0%, #000 100%);
-    background-attachment: fixed; /* Keep background mesh still while scrolling */
-    background-size: cover;
+    
+    /* 🛡️ FIXED: Removed hardcoded hex codes and used variables */
+    background: radial-gradient(circle at 0% 0%, var(--grad-1) 0%, transparent 50%),
+                radial-gradient(circle at 100% 100%, var(--grad-2) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, var(--grad-3) 0%, #000 100%);
+    
+    /* Ensure the background color behind the gradient also follows the theme */
+    background-color: var(--bg-color) !important;
+    
+    background-attachment: fixed;
+    color: var(--text-main);
+    overflow-x: hidden;
+}
+
+/* Fix for the Light Mode black edge */
+[data-theme="light"] body {
+    background: radial-gradient(circle at 0% 0%, var(--grad-1) 0%, transparent 50%),
+                radial-gradient(circle at 100% 100%, var(--grad-2) 0%, transparent 50%),
+                var(--bg-color); /* Removes the #000 black floor in light mode */
 }
 
 /* ============================================================

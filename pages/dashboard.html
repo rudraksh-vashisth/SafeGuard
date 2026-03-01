@@ -226,25 +226,36 @@
                 </div>
 
                 <!-- Video 5: Custom Link Card -->
+                <!-- Video 5: YouTube Short Played Internally -->
+                <!-- Video 5: Professional Link Card (Fixes 'Unavailable' Error) -->
                 <div class="video-card-premium group relative">
+                    <!-- Clicking this link opens the video in a new tab -->
                     <a href="https://www.youtube.com/watch?v=FW0tk65YdMQ" target="_blank" rel="noopener noreferrer"
                         class="block">
-                        <div class="thumbnail-box relative">
-                            <span class="badge-online">KIDNAPPING ATTEMPT</span>
-                            <img src="https://img.youtube.com/vi/FW0tk65YdMQ/maxresdefault.jpg" alt="Wrist Grab Escape"
-                                class="w-full h-full object-cover">
+                        <div class="thumbnail-box relative overflow-hidden rounded-t-[28px]">
+                            <span class="badge-online">QUICK TIP</span>
+
+                            <!-- High-Quality Auto-Generated Thumbnail from YouTube -->
+                            <img src="https://img.youtube.com/vi/FW0tk65YdMQ/maxresdefault.jpg"
+                                alt="Wrist Grab Escape Tutorial"
+                                class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+
+                            <!-- Play Button Overlay (Matches your SOS Red theme) -->
                             <div
                                 class="absolute inset-0 flex items-center justify-center bg-black/40 group-hover:bg-black/60 transition-all">
                                 <div
-                                    class="w-14 h-14 bg-red-600 rounded-full flex items-center justify-center shadow-2xl">
-                                    <i class="fa-solid fa-play text-white text-lg"></i>
+                                    class="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center shadow-2xl transform group-hover:scale-110 transition-all duration-300">
+                                    <i class="fa-solid fa-play text-white text-xl ml-1"></i>
                                 </div>
                             </div>
                         </div>
                     </a>
-                    <div class="video-card-content">
-                        <h4 class="font-bold text-sm">Wrist Grab Escape</h4>
-                        <p class="text-[10px] opacity-50 mt-2">Break free instantly. (Click to watch on YouTube)</p>
+
+                    <div class="video-card-content p-6">
+                        <h4 class="font-bold text-sm group-hover:text-blue-400 transition-colors">Escape From a Wrist
+                            Grab</h4>
+                        <p class="text-[10px] opacity-50 mt-2 leading-relaxed">A professional demonstration of the
+                            'C-Grip' escape technique. (Click to watch on YouTube)</p>
                     </div>
                 </div>
             </div>

@@ -11,6 +11,11 @@
     --glass-border: rgba(255, 255, 255, 0.1);
     --blur: 20px;
     --accent-blue: #00d2ff;
+
+    /* NEW: Gradient colors for Dark Mode */
+    --grad-1: #0f1115;
+    --grad-2: #1a1d23;
+    --grad-3: #0d0e12;
 }
 
 [data-theme="light"] {
@@ -22,6 +27,11 @@
     --input-border: #e2e8f0;
     --glass-border: rgba(0, 0, 0, 0.08);
     --accent-blue: #3b82f6;
+
+    /* NEW: Gradient colors for Light Mode (Soft whites/greys) */
+    --grad-1: #f1f5f9;
+    --grad-2: #e2e8f0;
+    --grad-3: #f8fafc;
 }
 
 /* ============================================================
