@@ -29,10 +29,13 @@ if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN) {
 // ============================================================
 app.use(helmet()); 
 app.use(cors({
-    origin: '*', // Allows all devices (Netlify, Mobile, Laptop) to connect
+    origin: 'https://safe-guard-pgme.vercel.app', // Allows all devices (Netlify, Mobile, Laptop) to connect
     methods: ['GET', 'POST', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Emergency-Signal']
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Emergency-Signal'],
+    credentials: true
 }));
+// Add this "Pre-flight" handler to help mobile browsers
+app.options('*', cors());
 
 // Body parser with size limit to prevent Payload Attacks
 app.use(express.json({ limit: '10kb' })); 
