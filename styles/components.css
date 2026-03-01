@@ -38,26 +38,32 @@
    1. THEME VARIABLES (CENTRAL CONTROL)
    ============================================================ */
 :root {
-    --bg-color: #0f1115;
-    --card-bg: rgba(26, 29, 35, 0.85);
+    /* DARK THEME (Default) */
+    --bg-color: #05060f;
+    --card-bg: rgba(255, 255, 255, 0.03);
     --text-main: #ffffff;
-    --text-dim: #94a3b8;
+    --text-dim: rgba(255, 255, 255, 0.6);
     --accent: #ff4b5c; 
-    --input-border: rgba(255, 255, 255, 0.1);
-    --glass-border: rgba(255, 255, 255, 0.1);
-    --blur: 20px;
     --accent-blue: #00d2ff;
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --nav-bg: rgba(255, 255, 255, 0.03);
 }
 
 [data-theme="light"] {
-    --bg-color: #f8fafc;
-    --card-bg: rgba(255, 255, 255, 0.9);
-    --text-main: #1e293b;
+    /* LIGHT THEME */
+    --bg-color: #f1f5f9;
+    --card-bg: #ffffff;
+    --text-main: #0f172a;
     --text-dim: #64748b;
     --accent: #ff4b5c;
-    --input-border: #e2e8f0;
+    --accent-blue: #2563eb;
     --glass-border: rgba(0, 0, 0, 0.08);
-    --accent-blue: #3b82f6;
+    --nav-bg: rgba(255, 255, 255, 0.8);
+}
+
+/* Global Transition to make theme switch smooth */
+* {
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 
 /* ============================================================

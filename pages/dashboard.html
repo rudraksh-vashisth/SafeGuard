@@ -250,12 +250,9 @@
                             </div>
                         </div>
                     </a>
-
-                    <div class="video-card-content p-6">
-                        <h4 class="font-bold text-sm group-hover:text-blue-400 transition-colors">Escape From a Wrist
-                            Grab</h4>
-                        <p class="text-[10px] opacity-50 mt-2 leading-relaxed">A professional demonstration of the
-                            'C-Grip' escape technique. (Click to watch on YouTube)</p>
+                    <div class="video-card-content">
+                        <h4 class="font-bold text-sm">Wrist Grab Escape</h4>
+                        <p class="text-[10px] opacity-50 mt-2">Break free instantly. (Click to watch on YouTube)</p>
                     </div>
                 </div>
             </div>
@@ -314,15 +311,15 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // Retrieve session data
-            const user = JSON.parse(localStorage.getItem('currentUser'));
-            const token = localStorage.getItem('token');
+            // const user = JSON.parse(localStorage.getItem('currentUser'));
+            // const token = localStorage.getItem('token');
 
-            // 🔐 SECURITY GATE: Prevent unauthorized access
-            if (!user || !token) {
-                console.warn("Unauthorized access attempt. Redirecting to login.");
-                window.location.href = '../index.html';
-                return;
-            }
+            // // 🔐 SECURITY GATE: Prevent unauthorized access
+            // if (!user || !token) {
+            //     console.warn("Unauthorized access attempt. Redirecting to login.");
+            //     window.location.href = '../index.html';
+            //     return;
+            // }
 
             // --- DISPLAY USER DATA ---
             try {
