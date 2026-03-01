@@ -271,3 +271,10 @@ app.post('/api/sos/trigger', sosLimiter, async (req, res) => {
 app.listen(PORT, () => {
     console.log(`🚀 SafeGuard Shield Active on Port ${PORT}`);
 });
+
+app.use(cors({
+    origin: ['https://safe-guard-pgme.vercel.app', 'http://127.0.0.1:5500'], // Allow both live and local
+    methods: ['GET', 'POST', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Emergency-Signal'],
+    credentials: true
+}));

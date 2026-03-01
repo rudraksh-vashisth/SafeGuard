@@ -4,7 +4,7 @@
  * Acoustic Alarms, and Real-time Geostreaming via Socket.io
  */
 
-const BASE_URL = 'https://safeguard-tce4.onrender.com';
+const BASE_URL = 'https://safeguard-i00e.onrender.com';
 const socketInstance = typeof io !== 'undefined' ? io(BASE_URL) : null;
 
 const EmergencySystem = {
