@@ -91,8 +91,9 @@
 
         <!-- 1. Centered Header -->
         <header class="flex flex-col items-center justify-center pt-6 mb-8 text-center hero-section">
-            <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight">Hello, <span class="text-blue-400"
-                    id="userNameDisplay">User</span></h1>
+            <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight">
+                Hello, <span class="text-blue-400" id="userNameDisplay">User</span>
+            </h1>
             <div class="flex items-center gap-2 mt-3 opacity-60">
                 <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_10px_#22c55e]"></span>
                 <p class="text-[10px] font-bold uppercase tracking-[0.2em]">Active Shield Protection</p>
@@ -351,18 +352,18 @@
             }
 
             // 🔐 SESSION SECURITY GATE
-            // const user = JSON.parse(localStorage.getItem('currentUser'));
-            // const token = localStorage.getItem('token');
-            // if (!user || !token) { window.location.href = '../index.html'; return; }
+            const user = JSON.parse(localStorage.getItem('currentUser'));
+            const token = localStorage.getItem('token');
+            if (!user || !token) { window.location.href = '../index.html'; return; }
 
-            // document.getElementById('userNameDisplay').innerText = user.fullName.split(' ')[0];
+            document.getElementById('userNameDisplay').innerText = user.fullName.split(' ')[0];
 
-            // document.getElementById('logoutBtn').addEventListener('click', () => {
-            //     if (confirm("Logout from SafeGuard Command Center?")) {
-            //         localStorage.removeItem('currentUser'); localStorage.removeItem('token');
-            //         window.location.href = '../index.html';
-            //     }
-            // });
+            document.getElementById('logoutBtn').addEventListener('click', () => {
+                if (confirm("Logout from SafeGuard Command Center?")) {
+                    localStorage.removeItem('currentUser'); localStorage.removeItem('token');
+                    window.location.href = '../index.html';
+                }
+            });
         });
     </script>
 </body>
