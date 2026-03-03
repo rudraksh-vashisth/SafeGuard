@@ -25,16 +25,16 @@ if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN) {
 }
 
 // ============================================================
-// 2. GLOBAL SECURITY MIDDLEWARE (STABLE & SECURE)
+// 2. GLOBAL SECURITY MIDDLEWARE (EXPRESS 5 & RENDER STABLE)
 // ============================================================
-app.use(helmet());
+app.use(helmet()); 
 
 // 🛡️ ADVANCED CORS CONFIGURATION
 app.use(cors({
     origin: [
-        'https://safe-guard-pgme.vercel.app', // Your Live Frontend
-        'http://127.0.0.1:5500',              // Local VS Code Live Server
-        'http://localhost:5500'               // Local Alternative
+        'https://safe-guard-pgme.vercel.app', 
+        'http://127.0.0.1:5500',              
+        'http://localhost:5500'               
     ],
     methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Emergency-Signal'],
@@ -42,18 +42,18 @@ app.use(cors({
 }));
 
 /**
- * 🚀 EXPRESS 5 PRE-FLIGHT FIX
- * Using '(.*)' instead of '*' to prevent PathError crash on Render
- */
-app.options('(.*)', cors());
+ * 🚀 EXPRESS 5 FIX
+ * We use the /.*/ //regex object here. 
+//  * This is the ONLY way to do a global wildcard in Express 5 without a PathError.
+ 
+app.options(/.*/, cors());
 
-// Body parser with size limit to prevent Payload/DDoS Attacks
-app.use(express.json({ limit: '10kb' }));
+// Body parser with size limit
+app.use(express.json({ limit: '10kb' })); 
 
 /**
  * 🛡️ RECURSIVE SECURITY SHIELD 
  * Manually removes NoSQL injection ($) and XSS (<script>) 
- * Logic optimized for Render (prevents Getter/Setter errors)
  */
 const cleanData = (obj) => {
     if (obj instanceof Object) {
@@ -61,7 +61,6 @@ const cleanData = (obj) => {
             if (key.startsWith('$')) {
                 delete obj[key];
             } else if (typeof obj[key] === 'string') {
-                // Sanitize string data to prevent basic XSS
                 obj[key] = obj[key].replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gim, "");
             } else {
                 cleanData(obj[key]);
@@ -69,6 +68,13 @@ const cleanData = (obj) => {
         }
     }
 };
+
+app.use((req, res, next) => {
+    cleanData(req.body);
+    cleanData(req.query);
+    cleanData(req.params);
+    next();
+});
 
 // Apply the Security Shield to all incoming requests
 app.use((req, res, next) => {
