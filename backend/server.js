@@ -25,25 +25,35 @@ if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN) {
 }
 
 // ============================================================
-// 2. GLOBAL SECURITY MIDDLEWARE
+// 2. GLOBAL SECURITY MIDDLEWARE (STABLE & SECURE)
 // ============================================================
-app.use(helmet()); 
+app.use(helmet());
+
+// 🛡️ ADVANCED CORS CONFIGURATION
 app.use(cors({
-    origin: 'https://safe-guard-pgme.vercel.app', // Allows all devices (Netlify, Mobile, Laptop) to connect
-    methods: ['GET', 'POST', 'DELETE'],
+    origin: [
+        'https://safe-guard-pgme.vercel.app', // Your Live Frontend
+        'http://127.0.0.1:5500',              // Local VS Code Live Server
+        'http://localhost:5500'               // Local Alternative
+    ],
+    methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Emergency-Signal'],
     credentials: true
 }));
-// Add this "Pre-flight" handler to help mobile browsers
-app.options('*', cors());
 
-// Body parser with size limit to prevent Payload Attacks
-app.use(express.json({ limit: '10kb' })); 
+/**
+ * 🚀 EXPRESS 5 PRE-FLIGHT FIX
+ * Using '(.*)' instead of '*' to prevent PathError crash on Render
+ */
+app.options('(.*)', cors());
+
+// Body parser with size limit to prevent Payload/DDoS Attacks
+app.use(express.json({ limit: '10kb' }));
 
 /**
  * 🛡️ RECURSIVE SECURITY SHIELD 
- * This manually removes NoSQL injection ($) and XSS (<script>) 
- * without triggering the "Getter" error on Render.
+ * Manually removes NoSQL injection ($) and XSS (<script>) 
+ * Logic optimized for Render (prevents Getter/Setter errors)
  */
 const cleanData = (obj) => {
     if (obj instanceof Object) {
@@ -51,6 +61,7 @@ const cleanData = (obj) => {
             if (key.startsWith('$')) {
                 delete obj[key];
             } else if (typeof obj[key] === 'string') {
+                // Sanitize string data to prevent basic XSS
                 obj[key] = obj[key].replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gim, "");
             } else {
                 cleanData(obj[key]);
@@ -59,6 +70,7 @@ const cleanData = (obj) => {
     }
 };
 
+// Apply the Security Shield to all incoming requests
 app.use((req, res, next) => {
     cleanData(req.body);
     cleanData(req.query);
@@ -85,7 +97,7 @@ const userSchema = new mongoose.Schema({
     fullName: { type: String, required: true, trim: true },
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
     phone: { type: String, required: true },
-    password: { type: String, required: true, select: false }, 
+    password: { type: String, required: true, select: false },
     emergencyContacts: [{
         name: String,
         phone: String,
@@ -214,7 +226,7 @@ app.post('/api/sos/trigger', sosLimiter, async (req, res) => {
         // 🛡️ GENERATE DYNAMIC TRACKING LINK
         // Replace 'your-app.netlify.app' with your actual Netlify/Vercel URL
         const trackingLink = `https://safe-guard-pgme.vercel.app/pages/track-user.html?id=${user._id}`;
-        
+
         // Prepare the professional alert message
         const alertMessage = `🚨 EMERGENCY: ${user.fullName.toUpperCase()} needs help!\nNote: ${note || 'Immediate assistance required.'}\n\nTrack Live Location: ${trackingLink}`;
 
@@ -228,27 +240,27 @@ app.post('/api/sos/trigger', sosLimiter, async (req, res) => {
 
         if (twilioClient) {
             const sortedGuardians = user.emergencyContacts.sort((a, b) => a.priority - b.priority);
-            
+
             sortedGuardians.forEach(async (g) => {
                 try {
                     // 📞 1. Priority 1 gets a Voice Call
-                    if(g.priority === 1) {
+                    if (g.priority === 1) {
                         await twilioClient.calls.create({
                             twiml: `<Response><Say voice="alice">Emergency alert for ${user.fullName}. They are in trouble. A live tracking link has been sent to your phone. Please check your messages immediately.</Say></Response>`,
-                            to: g.phone, 
+                            to: g.phone,
                             from: process.env.TWILIO_PHONE_NUMBER
                         });
                     }
-                    
+
                     // 📱 2. All guardians get the professional SMS with the tracking link
                     await twilioClient.messages.create({
                         body: alertMessage,
-                        to: g.phone, 
+                        to: g.phone,
                         from: process.env.TWILIO_PHONE_NUMBER
                     });
-                    
-                } catch (e) { 
-                    console.error(`[Twilio Error] Failed to reach ${g.name}:`, e.message); 
+
+                } catch (e) {
+                    console.error(`[Twilio Error] Failed to reach ${g.name}:`, e.message);
                 }
             });
         } else {
@@ -256,10 +268,10 @@ app.post('/api/sos/trigger', sosLimiter, async (req, res) => {
             console.log(alertMessage);
         }
 
-        res.json({ 
-            success: true, 
+        res.json({
+            success: true,
             message: "SOS signals broadcasted to all guardians.",
-            contactsNotified: user.emergencyContacts.length 
+            contactsNotified: user.emergencyContacts.length
         });
 
     } catch (error) {
