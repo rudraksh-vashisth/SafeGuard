@@ -12,13 +12,14 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/19.2.19/css/intlTelInput.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 
+
     <!-- CSS (Correct relative paths) -->
     <link rel="stylesheet" href="../styles/main.css">
     <link rel="stylesheet" href="../styles/components.css">
     <link rel="stylesheet" href="../styles/dashboard.css">
     <link rel="stylesheet" href="../styles/contacts.css">
     <link rel="stylesheet" href="../styles/animations.css">
-
+    <script src="https://unpkg.com/lottie-web@latest/build/player/lottie.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
@@ -100,15 +101,8 @@
         <!-- Centered Bottom Illustration -->
         <!-- Centered Bottom Illustration -->
         <div class="mt-20 mb-20 flex flex-col items-center justify-center animate-pop-in">
-            <div class="relative w-64 h-64 flex items-center justify-center">
-                <!-- Background Neon Glow -->
-                <div class="absolute inset-0 bg-blue-500/5 blur-[80px] rounded-full"></div>
-
-                <!-- Professional Minimalist Image -->
-                <!-- Use this stable URL from unDraw's public library -->
-                <img src="https://raw.githubusercontent.com/popsy-co/popsy-illustrations/master/white/shield.svg"
-                    alt="Guardian Security"
-                    class="w-full h-full object-contain relative z-10 opacity-40 hover:opacity-100 hover:scale-105 transition-all duration-700 cursor-help">
+            <div id="guardianAnimation"
+                class="w-full h-full relative z-10 opacity-70 hover:opacity-100 hover:scale-105 transition-all duration-700">
             </div>
             <!-- Subtext -->
             <div class="text-center mt-8">
@@ -181,6 +175,15 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/19.2.19/js/intlTelInput.min.js"></script>
     <script src="../scripts/ui-controller.js"></script>
     <script src="../scripts/contacts.js"></script>
+    <script>
+        lottie.loadAnimation({
+            container: document.getElementById('guardianAnimation'),
+            renderer: 'svg',
+            loop: true,
+            autoplay: true,
+            path: '../assets/animations/GuardianSecurity.json'
+        });
+    </script>
 </body>
 
-</html>
+</html>         
