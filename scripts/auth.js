@@ -1,10 +1,11 @@
 /**
- * SafeGuard Authentication & Input Validation System
- * Handles: Login, Signup, International Phone Masking, and Security Constraints
+ * SafeGuard Authentication & Security Engine
+ * Professional Version: Real-time validation, Dynamic UI, and Secure Handshake
  */
 
-const API_URL = 'https://safeguard-i00e.onrender.com/api' // Ensure there is no '/' at the end
+const API_URL = 'https://safeguard-i00e.onrender.com/api';
 
+// --- YOUR CUSTOM HELPER FUNCTION ---
 function toggleReqClass(id, isValid) {
     const el = document.getElementById(id);
     if (el) {
@@ -17,110 +18,76 @@ function toggleReqClass(id, isValid) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    // UI Element Selectors
+    // Selectors
     const signupForm = document.getElementById('signupForm');
     const loginForm = document.getElementById('loginForm');
     const phoneInput = document.querySelector("#phone");
+    const passwordInput = document.getElementById('signupPassword');
+    const mainHint = document.getElementById('main-hint');
     const toggleIcons = document.querySelectorAll('.toggle-password');
 
     let iti;
 
     // ============================================================
-    // 1. PHONE INPUT INITIALIZATION (With "Zero-Lock" Logic)
+    // 1. PHONE INPUT INITIALIZATION (ANTI-LOCK LOGIC)
     // ============================================================
     if (phoneInput) {
-        // Clean up any old instances
+        // Clean up any existing instances to prevent double-flags
         const existingInstance = window.intlTelInputGlobals.getInstance(phoneInput);
         if (existingInstance) existingInstance.destroy();
 
-        // Initial setup
         iti = window.intlTelInput(phoneInput, {
             initialCountry: "in",
             separateDialCode: true,
             countrySearch: true,
             useFullscreenPopup: false,
-            fixDropdownWidth: true,
             autoPlaceholder: "aggressive",
             preferredCountries: ["in", "us", "gb"],
             utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/19.2.19/js/utils.js",
         });
 
-        /**
-         * Dynamically sets the max digits allowed based on the selected country.
-         * Includes a safety fallback to prevent the input from being locked.
-         */
-        const syncPhoneConstraints = () => {
+        // Dynamic length restriction based on country
+        const setPhoneLimit = () => {
             setTimeout(() => {
                 const placeholder = phoneInput.getAttribute('placeholder');
                 if (placeholder) {
-                    // Extract digits from placeholder (e.g., "081234 56789" -> 11)
                     let maxDigits = placeholder.replace(/\D/g, '').length;
-
-                    // Handle trunk prefix '0' (common in India/UK placeholders)
+                    // Fix for India/UK national '0' prefix
                     if (placeholder.startsWith('0') && maxDigits > 10) maxDigits -= 1;
-
-                    // FAILSAFE: Ensure maxlength is at least 7 and no more than 15
                     const finalLimit = maxDigits > 5 ? maxDigits : 15;
                     phoneInput.setAttribute('maxlength', finalLimit);
-
-                    // Truncate if current value is too long
                     if (phoneInput.value.length > finalLimit) {
                         phoneInput.value = phoneInput.value.substring(0, finalLimit);
                     }
                 } else {
-                    phoneInput.setAttribute('maxlength', 15); // Default fallback
+                    phoneInput.setAttribute('maxlength', 15);
                 }
             }, 250);
         };
 
-        // Listeners for phone behavior
-        phoneInput.addEventListener('countrychange', syncPhoneConstraints);
-        phoneInput.addEventListener('input', function () {
-            this.value = this.value.replace(/\D/g, ''); // Strictly numeric
+        phoneInput.addEventListener('countrychange', setPhoneLimit);
+        phoneInput.addEventListener('input', function() {
+            this.value = this.value.replace(/\D/g, ''); // Numbers only
         });
-
-        // Initialize constraints on load
+        
         phoneInput.setAttribute('maxlength', 15); // Start with safe limit
-        setTimeout(syncPhoneConstraints, 800);
+        setTimeout(setPhoneLimit, 1000);
     }
 
     // ============================================================
-    // 2. PASSWORD VISIBILITY TOGGLE
+    // 2. PASSWORD CHECKLIST & VISIBILITY
     // ============================================================
-    toggleIcons.forEach(icon => {
-        icon.addEventListener('click', function () {
-            const input = this.parentElement.querySelector('input');
-            const isPassword = input.type === 'password';
-
-            input.type = isPassword ? 'text' : 'password';
-            this.classList.toggle('fa-eye-slash', !isPassword);
-            this.classList.toggle('fa-eye', isPassword);
-        });
-    });
-
-
-    // ============================================================
-    // SIGNUP LOGIC (Security, Real-time Validation & Submission)
-    // ============================================================
-    if (signupForm) {
-        const passwordInput = document.getElementById('signupPassword');
-        const confirmInput = document.getElementById('confirmPassword');
-        const submitBtn = signupForm.querySelector('button[type="submit"]');
-        const mainHint = document.getElementById('main-hint');
-
-        // 1. REAL-TIME PASSWORD CHECKLIST CRITERIA
+    if (passwordInput) {
         const criteria = {
             upper: /[A-Z]/,
             lower: /[a-z]/,
             number: /[0-9]/,
             special: /[!@#$%^&*(),.?":{}|<>]/,
-            length: /.{8,}/ // Locked at 8 characters
+            length: /.{8,}/
         };
 
-        const updateChecklist = () => {
+        passwordInput.addEventListener('input', () => {
             const val = passwordInput.value;
-
-            // Run individual tests
             const res = {
                 upper: criteria.upper.test(val),
                 lower: criteria.lower.test(val),
@@ -129,79 +96,95 @@ document.addEventListener('DOMContentLoaded', () => {
                 length: criteria.length.test(val)
             };
 
-            // Helper to toggle 'valid' class on the UI rows
-            const toggleClass = (id, isValid) => {
-                const el = document.getElementById(id);
-                if (el) isValid ? el.classList.add('valid') : el.classList.remove('valid');
-            };
+            // Using your custom toggle function
+            toggleReqClass('req-upper', res.upper);
+            toggleReqClass('req-lower', res.lower);
+            toggleReqClass('req-number', res.number);
+            toggleReqClass('req-special', res.special);
+            toggleReqClass('req-length', res.length);
 
-            toggleClass('req-upper', res.upper);
-            toggleClass('req-lower', res.lower);
-            toggleClass('req-number', res.number);
-            toggleClass('req-special', res.special);
-            toggleClass('req-length', res.length);
-
-            // --- NEW: DYNAMIC HINT LOGIC (Priority Based & Left Aligned) ---
+            // Dynamic Hint logic (Priority based)
             if (mainHint) {
                 mainHint.style.opacity = "1";
                 mainHint.classList.remove('text-green-400');
-                mainHint.classList.add('text-[#ff4b5c]'); // Default error color
-
                 if (val.length === 0) {
                     mainHint.innerText = "Please enter a secure password";
                 } else if (!res.length) {
-                    // Tells user exactly how many more characters they need
                     mainHint.innerText = `Missing ${8 - val.length} more characters`;
                 } else if (!res.upper) {
-                    mainHint.innerText = "Include at least one uppercase letter";
+                    mainHint.innerText = "Include one capital letter";
                 } else if (!res.number) {
-                    mainHint.innerText = "Include at least one numeric value";
+                    mainHint.innerText = "Include one numeric value";
                 } else if (!res.special) {
-                    mainHint.innerText = "Include a special character (!@#$%)";
+                    mainHint.innerText = "Include a symbol (!@#$%)";
                 } else {
-                    // All conditions met: Success state
                     mainHint.innerText = "Security verified ✓";
-                    mainHint.classList.replace('text-[#ff4b5c]', 'text-green-400');
-                    // Fade out smoothly after a short delay
-                    setTimeout(() => {
-                        if (criteria.length.test(passwordInput.value)) mainHint.style.opacity = "0";
-                    }, 2000);
+                    mainHint.classList.add('text-green-400');
+                    setTimeout(() => { if(res.length) mainHint.style.opacity = "0"; }, 2000);
                 }
             }
-        };
+        });
+    }
 
-        passwordInput.addEventListener('input', updateChecklist);
+    toggleIcons.forEach(icon => {
+        icon.addEventListener('click', function() {
+            const input = this.parentElement.querySelector('input');
+            const isPass = input.type === 'password';
+            input.type = isPass ? 'text' : 'password';
+            this.classList.toggle('fa-eye-slash', !isPass);
+            this.classList.toggle('fa-eye', isPass);
+        });
+    });
 
-        // 2. FORM SUBMISSION HANDLER
-        signupForm.addEventListener('submit', async (e) => {
+    // ============================================================
+    // 3. FORM SUBMISSIONS (SIGNUP & LOGIN)
+    // ============================================================
+    const handleAuthResponse = async (endpoint, data, submitBtn, btnOriginalText) => {
+        try {
+            const response = await fetch(`${API_URL}/${endpoint}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                if (endpoint === 'login') {
+                    localStorage.setItem('token', result.token);
+                    localStorage.setItem('currentUser', JSON.stringify(result.user));
+                    const pathPrefix = window.location.pathname.includes('pages') ? '' : 'pages/';
+                    window.location.href = `${pathPrefix}dashboard.html`;
+                } else {
+                    alert("✅ Account Shield Activated! Please login.");
+                    window.location.href = "../index.html";
+                }
+            } else {
+                alert(`⚠️ ${result.error || "Authentication failed"}`);
+                submitBtn.disabled = false;
+                submitBtn.innerText = btnOriginalText;
+            }
+        } catch (err) {
+            alert("📡 Server is waking up. Please try again in 30 seconds.");
+            submitBtn.disabled = false;
+            submitBtn.innerText = btnOriginalText;
+        }
+    };
+
+    if (signupForm) {
+        signupForm.addEventListener('submit', (e) => {
             e.preventDefault();
-
-            // Security Check: Phone Validity (intl-tel-input)
-            if (!iti.isValidNumber()) {
-                alert("🚨 The mobile number is invalid for the selected country.");
-                return;
-            }
-
-            // Security Check: Password Complexity (Regex)
+            const btn = signupForm.querySelector('button[type="submit"]');
+            if (!iti.isValidNumber()) return alert("🚨 Invalid mobile number.");
+            
             const password = passwordInput.value;
-            const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-
-            if (!passwordRegex.test(password)) {
-                alert("🛡️ Security Requirement: Please fulfill all password criteria displayed in the checklist.");
-                return;
+            if (!/^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(password)) {
+                return alert("🛡️ Password criteria not met.");
             }
 
-            // Security Check: Password Match
-            if (password !== confirmInput.value) {
-                alert("❌ Passwords do not match.");
-                return;
-            }
-
-            // --- PREPARE FOR API CALL ---
-            const originalBtnText = submitBtn.innerText;
-            submitBtn.innerText = "CREATING SHIELD...";
-            submitBtn.disabled = true;
-            submitBtn.style.opacity = "0.7";
+            btn.disabled = true;
+            const originalText = btn.innerText;
+            btn.innerText = "CREATING SHIELD...";
 
             const userData = {
                 fullName: document.getElementById('fullName').value.trim(),
@@ -209,70 +192,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 phone: iti.getNumber(),
                 password: password
             };
-
-            try {
-                const response = await fetch(`${API_URL}/register`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(userData)
-                });
-
-                const result = await response.json();
-
-                if (response.ok) {
-                    alert("✅ Account Shield Activated! Redirecting to login...");
-                    window.location.href = "../index.html";
-                } else {
-                    alert(`⚠️ ${result.error || "Registry rejected by server."}`);
-                    submitBtn.innerText = originalBtnText;
-                    submitBtn.disabled = false;
-                    submitBtn.style.opacity = "1";
-                }
-            } catch (err) {
-                console.error("Network Error:", err);
-                alert("📡 Connection Failure: Backend is currently unreachable.");
-                submitBtn.innerText = originalBtnText;
-                submitBtn.disabled = false;
-                submitBtn.style.opacity = "1";
-            }
+            handleAuthResponse('register', userData, btn, originalText);
         });
     }
 
-    // ============================================================
-    // 4. LOGIN LOGIC (Session Establishment)
-    // ============================================================
     if (loginForm) {
-        loginForm.addEventListener('submit', async (e) => {
+        loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
+            const btn = loginForm.querySelector('button[type="submit"]');
+            const email = document.getElementById('email').value.toLowerCase().trim();
+            const password = document.getElementById('password').value;
 
-            const loginData = {
-                email: document.getElementById('email').value.toLowerCase().trim(),
-                password: document.getElementById('password').value
-            };
+            btn.disabled = true;
+            const originalText = btn.innerText;
+            btn.innerText = "VERIFYING...";
 
-            try {
-                const response = await fetch(`${API_URL}/login`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(loginData)
-                });
-
-                const result = await response.json();
-
-                if (response.ok) {
-                    // SECURE STORAGE
-                    localStorage.setItem('token', result.token);
-                    localStorage.setItem('currentUser', JSON.stringify(result.user));
-
-                    // Intelligent Redirection
-                    const pathPrefix = window.location.pathname.includes('pages') ? '' : 'pages/';
-                    window.location.href = `${pathPrefix}dashboard.html`;
-                } else {
-                    alert(`🚫 ${result.error || "Access Denied"}`);
-                }
-            } catch (err) {
-                alert("📡 Connection lost. Is the backend server running?");
-            }
+            handleAuthResponse('login', { email, password }, btn, originalText);
         });
     }
 });
