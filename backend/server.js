@@ -32,9 +32,9 @@ app.use(helmet());
 // 🛡️ ADVANCED CORS CONFIGURATION
 app.use(cors({
     origin: [
+        'https://safe-guard-opal.vercel.app', // Add this new URL
         'https://safe-guard-pgme.vercel.app', 
-        'http://127.0.0.1:5500',              
-        'http://localhost:5500'               
+        'http://127.0.0.1:5500'
     ],
     methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Emergency-Signal'],
