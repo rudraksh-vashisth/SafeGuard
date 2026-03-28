@@ -92,3 +92,18 @@ body::before {
         font-size: 16px;
     }
 }
+
+[data-theme="light"] {
+    /* Professional Neutral Palette */
+    --bg-color: #f1f3f6; /* Soft Pearl Gray */
+    --card-bg: rgba(255, 255, 255, 0.8);
+    --text-main: #1e293b; /* Deep Slate */
+    --text-dim: #64748b;
+    --accent-blue: #2563eb;
+    --glass-border: rgba(255, 255, 255, 0.5);
+    
+    /* Subtle background mesh for light mode */
+    --grad-1: #e2e8f0;
+    --grad-2: #f1f5f9;
+    --grad-3: #f8fafc;
+}
