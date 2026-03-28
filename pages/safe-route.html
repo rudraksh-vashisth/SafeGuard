@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SafeGuard | AI Smart Navigation</title>
+    <link rel="icon" type="image/png" href="../assets/images/Logo.png">
+    
+    <!-- External Libraries -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+    
+    <!-- Google Maps API - Replace YOUR_API_KEY -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places"></script>
+
+    <!-- Project Styles -->
+    <link rel="stylesheet" href="../styles/main.css">
+    <link rel="stylesheet" href="../styles/components.css">
+    <link rel="stylesheet" href="../styles/dashboard.css">
+    <link rel="stylesheet" href="../styles/animations.css">
+
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #05060f; color: white; }
+        .glass-card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        #map-canvas { height: 450px; width: 100%; border-radius: 24px; border: 1px solid rgba(255, 255, 255, 0.1); }
+        
+        /* Custom styling for classy dropdowns */
+        select {
+            cursor: pointer;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2394a3b8' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.5rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+            padding-right: 2.5rem;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+        
+        select:disabled { opacity: 0.3; cursor: not-allowed; }
+        option { background: #1a1d23; color: white; }
+    </style>
+</head>
+
+<body class="pb-32 overflow-x-hidden">
+    <div class="mesh-bg"></div>
+
+    <!-- 1. SPLASH SCREEN (Consistent Branding) -->
+    <div id="splash-screen">
+        <div class="splash-content text-center">
+            <div class="logo-circle">
+                <div class="inner-pulse"></div>
+                <img src="../assets/images/Logo.png" alt="SafeGuard Logo">
+            </div>
+            <div class="welcome-container">
+                <p class="welcome-subtext">AI Intelligence</p>
+                <h1 class="welcome-main-text">SAFE<span style="color: var(--accent-blue);">ROUTE</span></h1>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. MAIN CONTENT (Hidden initially for Splash) -->
+    <main id="main-content" class="hidden dashboard-main px-6 max-w-6xl mx-auto opacity-0 transition-opacity duration-1000">
+        
+        <header class="header-centered mt-10 mb-12">
+            <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight">AI Safe <span class="text-blue-400">Route</span></h1>
+            <p class="text-[10px] font-bold uppercase tracking-[0.4em] opacity-50 mt-3">Live Risk Analysis & Navigation</p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- ORIGIN & DESTINATION SELECTOR -->
+            <div class="lg:col-span-1 space-y-6 animate-pop-in">
+                
+                <!-- Origin Dropdowns -->
+                <div class="glass-card p-6 rounded-[2.5rem] shadow-xl">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center text-blue-400">
+                            <i class="fa-solid fa-location-dot text-sm"></i>
+                        </div>
+                        <h3 class="text-xs font-black tracking-widest uppercase opacity-60">Starting Point</h3>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <select id="stateSelect" class="w-full bg-black/40 border border-white/10 rounded-xl p-4 text-sm outline-none focus:border-blue-400 transition-all appearance-none">
+                            <option value="">Select State</option>
+                        </select>
+
+                        <select id="districtSelect" class="w-full bg-black/40 border border-white/10 rounded-xl p-4 text-sm outline-none focus:border-blue-400 transition-all appearance-none" disabled>
+                            <option value="">Select District</option>
+                        </select>
+
+                        <select id="areaSelect" class="w-full bg-black/40 border border-white/10 rounded-xl p-4 text-sm outline-none focus:border-blue-400 transition-all appearance-none" disabled>
+                            <option value="">Select Local Area</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Destination Input -->
+                <div class="glass-card p-6 rounded-[2.5rem] shadow-xl">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center text-green-400">
+                            <i class="fa-solid fa-flag-checkered text-sm"></i>
+                        </div>
+                        <h3 class="text-xs font-black tracking-widest uppercase opacity-60">Final Destination</h3>
+                    </div>
+                    
+                    <input type="text" id="destinationInput" placeholder="Landmark, Mall, or Street name..." 
+                        class="w-full bg-black/40 border border-white/10 rounded-xl p-4 text-sm text-white outline-none focus:border-blue-400 transition-all">
+                    
+                    <button id="analyzeBtn" class="w-full mt-6 bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-2xl transition-all text-[11px] uppercase tracking-widest shadow-lg shadow-blue-600/20 group">
+                        Analyze Safest Route <i class="fa-solid fa-bolt ml-2 group-hover:animate-pulse"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- GOOGLE MAP DISPLAY -->
+            <div class="lg:col-span-2 space-y-6">
+                <div class="glass-card p-4 rounded-[3rem] border-white/10 h-full min-h-[500px]">
+                    
+                    <!-- AI Loading State -->
+                    <div id="loadingArea" class="hidden absolute inset-0 z-20 bg-[#05060f]/80 backdrop-blur-sm rounded-[3rem] flex flex-col items-center justify-center">
+                        <lottie-player src="https://lottie.host/742b7811-92b0-466d-88b0-a3598007a891/m5D7kYIeXy.json" background="transparent" speed="1" style="width: 100px; height: 100px;" loop autoplay></lottie-player>
+                        <p class="text-xs font-black tracking-[0.3em] uppercase text-blue-400 mt-4 animate-pulse">Scanning Street Safety...</p>
+                    </div>
+
+                    <div id="map-canvas"></div>
+
+                    <!-- AI Safety Report Area -->
+                    <div id="reportArea" class="hidden mt-6 p-6 bg-white/5 border border-white/5 rounded-3xl animate-pop-in">
+                        <!-- Content Injected via safe-route.js -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Bottom Nav -->
+    <nav class="fixed bottom-8 left-1/2 -translate-x-1/2 w-[92%] max-w-md h-16 glass rounded-[2rem] flex items-center justify-around px-4 z-50 border-white/5 bottom-nav-glass">
+        <a href="dashboard.html" class="nav-item-glow text-white/30 flex flex-col items-center"><i class="fa-solid fa-house"></i><span class="text-[9px] mt-1 font-bold uppercase">Home</span></a>
+        <a href="emergency-contacts.html" class="nav-item-glow text-white/30 flex flex-col items-center"><i class="fa-solid fa-phone"></i><span class="text-[9px] mt-1 font-bold uppercase">Contacts</span></a>
+        <a href="safe-route.html" class="nav-item-glow active text-blue-400 flex flex-col items-center"><i class="fa-solid fa-route"></i><span class="text-[9px] mt-1 font-bold uppercase">Route</span></a>
+        <a href="settings.html" class="nav-item-glow text-white/30 flex flex-col items-center"><i class="fa-solid fa-gear"></i><span class="text-[9px] mt-1 font-bold uppercase">Settings</span></a>
+    </nav>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+    <script src="../scripts/ui-controller.js"></script>
+    <script src="../scripts/location-data.js"></script>
+    <script src="../scripts/safe-route.js"></script>
+</body>
+</html>

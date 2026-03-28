@@ -46,6 +46,7 @@
             z-index: -1;
             opacity: 0.5;
         }
+
     </style>
 </head>
 
@@ -186,15 +187,30 @@
                     <p class="text-xs opacity-50 mt-1">Live tracking with 5 trusted contacts.</p>
                 </div>
             </a>
-            <a href="safe-zones.html"
-                class="glass p-6 rounded-[2.5rem] flex flex-col items-start gap-4 hover:bg-white/5 transition-all cursor-pointer border-white/5 group">
+            <!-- BLOCK 2: Safe Route (Now Connected to AI) -->
+            <a href="safe-route.html"
+                class="glass p-6 rounded-[2.5rem] flex flex-col items-start gap-4 hover:bg-white/5 transition-all cursor-pointer border-white/5 group relative overflow-hidden">
+
+                <!-- AI Pulse Background (Subtle effect for AI features) -->
                 <div
-                    class="w-12 h-12 bg-green-500/20 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <i class="fa-solid fa-route text-green-400 text-xl"></i>
+                    class="absolute -top-10 -right-10 w-24 h-24 bg-blue-500/10 blur-2xl rounded-full group-hover:bg-blue-500/20 transition-all">
                 </div>
+
+                <div class="flex justify-between items-start w-full">
+                    <div
+                        class="w-12 h-12 bg-green-500/20 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-route text-green-400 text-xl"></i>
+                    </div>
+                    <!-- 💡 AI BADGE -->
+                    <span
+                        class="bg-blue-600/20 text-blue-400 text-[8px] font-black px-2 py-1 rounded-md border border-blue-500/30 tracking-tighter">AI
+                        POWERED</span>
+                </div>
+
                 <div>
                     <h3 class="font-bold text-lg text-white">Safe Route</h3>
-                    <p class="text-xs opacity-50 mt-1">AI suggestions for well-lit paths.</p>
+                    <p class="text-xs opacity-50 mt-1 leading-tight text-left">Get predictive safety analysis for your
+                        late-night journeys.</p>
                 </div>
             </a>
             <a href="safe-zones.html"
@@ -323,8 +339,12 @@
                 class="fa-solid fa-house"></i><span class="text-[9px] mt-1 font-bold">HOME</span></a>
         <a href="emergency-contacts.html" class="nav-item-glow text-white/30 flex flex-col items-center"><i
                 class="fa-solid fa-phone"></i><span class="text-[9px] mt-1 font-bold">CONTACTS</span></a>
-        <a href="safe-zones.html" class="nav-item-glow text-white/30 flex flex-col items-center"><i
-                class="fa-solid fa-map-location-dot"></i><span class="text-[9px] mt-1 font-bold">ZONES</span></a>
+        <!-- Navigation Item: Route/Zones -->
+        <a href="safe-route.html"
+            class="nav-item-glow text-white/30 flex flex-col items-center hover:text-white transition-all">
+            <i class="fa-solid fa-map-location-dot"></i>
+            <span class="text-[9px] mt-1 font-bold uppercase">Safe Route</span>
+        </a>
         <a href="settings.html" class="nav-item-glow text-white/30 flex flex-col items-center"><i
                 class="fa-solid fa-gear"></i><span class="text-[9px] mt-1 font-bold">SETTINGS</span></a>
     </nav>

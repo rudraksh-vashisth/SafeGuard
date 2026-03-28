@@ -286,8 +286,78 @@ app.post('/api/sos/trigger', sosLimiter, async (req, res) => {
     }
 });
 
+
 // ============================================================
-// 9. START SERVER
+// 9. AI SAFE ROUTE ANALYZER (Gemini API)
+// ============================================================
+
+const { GoogleGenerativeAI } = require("@google/generative-ai");
+
+// Initialize Gemini
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+
+app.post('/api/ai/safe-route', async (req, res) => {
+    try {
+        const { prompt } = req.body;
+
+        // 🛡️ SECURITY: Check if user is authenticated
+        const token = req.headers.authorization?.split(' ')[1];
+        if (!token) return res.status(401).json({ error: "Unauthorized" });
+
+        // Verify token (optional but good practice)
+        jwt.verify(token, JWT_SECRET);
+
+        // 🧠 PROMPT ENGINEERING: Crafting the perfect prompt for safety analysis
+        const systemPrompt = `
+            You are the "SafeRoute AI", a specialized safety analysis engine for a women's safety app.
+            Your goal is to analyze a given route (start to destination) and provide a detailed safety report.
+            
+            CRITICAL INSTRUCTIONS:
+            1. Analyze the route based on general safety principles (avoid dark alleys, isolated areas).
+            2. If the user mentions specific landmarks, assume they are in a populated area.
+            3. Provide a "Safety Score" (0-100).
+            4. Provide a "Verdict" (Safe, Caution Advised, Not Recommended).
+            5. Give actionable "Safety Tips" specific to the route.
+            6. Format the output strictly in Markdown for HTML rendering.
+            
+            OUTPUT FORMAT:
+            ### Route Analysis
+            <p><b>Start:</b> [Start Location]</p>
+            <p><b>Destination:</b> [Destination Location]</p>
+            <p><b>Safety Score:</b> [Number]/100</p>
+            <p><b>Verdict:</b> [Verdict]</p>
+            
+            ### Safety Report
+            <p>[Detailed analysis paragraph]</p>
+            
+            ### Safety Tips
+            <ul>
+                <li>[Tip 1]</li>
+                <li>[Tip 2]</li>
+                <li>[Tip 3]</li>
+            </ul>
+        `;
+
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+        const result = await model.generateContent({
+            contents: [{ role: "user", parts: [{ text: prompt }] }],
+            systemInstruction: systemPrompt
+        });
+
+        const responseText = result.response.text();
+
+        res.json({ report: responseText });
+
+    } catch (error) {
+        console.error("Gemini API Error:", error);
+        res.status(500).json({ error: "AI Analysis failed. Please try again." });
+    }
+});
+
+
+// ============================================================
+// 10. START SERVER
 // ============================================================
 app.listen(PORT, () => {
     console.log(`🚀 SafeGuard Shield Active on Port ${PORT}`);

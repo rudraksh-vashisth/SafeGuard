@@ -3,8 +3,10 @@
     display: block;
     width: 100%;
     min-height: 100vh;
-    overflow-y: visible; /* Allows natural scrolling */
-    padding-bottom: 120px; /* Space for the floating bottom nav */
+    overflow-y: visible;
+    /* Allows natural scrolling */
+    padding-bottom: 120px;
+    /* Space for the floating bottom nav */
 }
 
 /* Ensure the body allows scrolling when on the dashboard */
@@ -13,10 +15,12 @@ body:has(.dashboard-main) {
     position: relative !important;
     height: auto !important;
 }
+
 /* ============================================================
    1. GLOBAL DASHBOARD LAYOUT & FIXES
    ============================================================ */
-body, html {
+body,
+html {
     overflow-x: hidden;
     width: 100%;
     position: relative;
@@ -34,7 +38,8 @@ body, html {
     padding-bottom: 120px;
 }
 
-.hero-section, .header-centered {
+.hero-section,
+.header-centered {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -97,10 +102,12 @@ body, html {
 /* The Grid: Shared by both Online and Offline sections */
 .video-grid-unified {
     display: grid;
-    grid-template-columns: repeat(3, 1fr); /* Force 3 columns on Laptop */
+    grid-template-columns: repeat(3, 1fr);
+    /* Force 3 columns on Laptop */
     gap: 25px;
     width: 100%;
-    margin-bottom: 40px; /* Space between categories */
+    margin-bottom: 40px;
+    /* Space between categories */
 }
 
 .video-card-premium {
@@ -109,7 +116,8 @@ body, html {
     border: 1px solid rgba(255, 255, 255, 0.1);
     overflow: hidden;
     display: flex;
-    flex-direction: column; /* Stacks thumb and text */
+    flex-direction: column;
+    /* Stacks thumb and text */
     height: 100%;
     transition: all 0.4s ease;
 }
@@ -121,16 +129,19 @@ body, html {
 }
 
 /* Ensure ALL video containers (Online & Offline) have same height */
-.iframe-container, .thumbnail-box {
+.iframe-container,
+.thumbnail-box {
     position: relative;
     width: 100%;
-    aspect-ratio: 16 / 9; /* Perfect wide-screen ratio */
+    aspect-ratio: 16 / 9;
+    /* Perfect wide-screen ratio */
     background: #000;
 }
 
 .badge-online {
     position: absolute;
-    top: 15px; left: 15px;
+    top: 15px;
+    left: 15px;
     background: #ff4b5c;
     color: white;
     font-size: 9px;
@@ -152,27 +163,41 @@ body, html {
 /* Laptop / Large Tablet */
 @media (max-width: 1024px) {
     .video-grid-unified {
-        grid-template-columns: repeat(2, 1fr); /* 2 columns */
+        grid-template-columns: repeat(2, 1fr);
+        /* 2 columns */
     }
 }
 
 /* Mobile */
 @media (max-width: 640px) {
     .video-grid-unified {
-        grid-template-columns: 1fr; /* 1 column */
+        grid-template-columns: 1fr;
+        /* 1 column */
     }
-    
-    .auth-card { width: 95% !important; padding: 30px 20px !important; }
-    .btn-sos-main { width: 130px !important; height: 130px !important; }
-    .hero-section h1 { font-size: 1.9rem !important; }
+
+    .auth-card {
+        width: 95% !important;
+        padding: 30px 20px !important;
+    }
+
+    .btn-sos-main {
+        width: 130px !important;
+        height: 130px !important;
+    }
+
+    .hero-section h1 {
+        font-size: 1.9rem !important;
+    }
 }
 
 /* Scrollbar styling */
-.iti__country-list::-webkit-scrollbar, 
+.iti__country-list::-webkit-scrollbar,
 .video-scroll-container::-webkit-scrollbar {
-    width: 4px; height: 4px;
+    width: 4px;
+    height: 4px;
 }
-.iti__country-list::-webkit-scrollbar-thumb, 
+
+.iti__country-list::-webkit-scrollbar-thumb,
 .video-scroll-container::-webkit-scrollbar-thumb {
     background: var(--accent-blue);
     border-radius: 10px;
@@ -188,10 +213,11 @@ body, html {
 }
 
 .bottom-nav-glass:hover {
-    box-shadow: 0 0 30px rgba(0, 210, 255, 0.15), 
-                inset 0 0 10px rgba(255, 255, 255, 0.05) !important;
+    box-shadow: 0 0 30px rgba(0, 210, 255, 0.15),
+        inset 0 0 10px rgba(255, 255, 255, 0.05) !important;
     border-color: rgba(0, 210, 255, 0.3) !important;
-    transform: translateX(-50%) translateY(-2px); /* Slight lift on hover */
+    transform: translateX(-50%) translateY(-2px);
+    /* Slight lift on hover */
 }
 
 /* 2. Individual Item Glow */
@@ -234,25 +260,42 @@ body, html {
 .btn-sos-main div {
     border-radius: 50%;
 }
+
 /* ============================================================
    8. SECURE SHIELD ACTIVATION EFFECT (FLICKER-FREE)
    ============================================================ */
 
 #shield-intro {
-    background-color: #05060f !important; /* Matches body background to hide dashboard content */
-    z-index: 99999 !important;           /* Ensures it is the top-most layer */
+    background-color: #05060f !important;
+    /* Matches body background to hide dashboard content */
+    z-index: 99999 !important;
+    /* Ensures it is the top-most layer */
     display: flex;
     justify-content: center;
     align-items: center;
-    visibility: visible;                 /* Explicitly visible on start */
+    visibility: visible;
+    /* Explicitly visible on start */
 }
 
 /* The Scanning Laser Line */
 @keyframes scan-laser {
-    0% { top: 0%; opacity: 0; }
-    20% { opacity: 1; }
-    80% { opacity: 1; }
-    100% { top: 100%; opacity: 0; }
+    0% {
+        top: 0%;
+        opacity: 0;
+    }
+
+    20% {
+        opacity: 1;
+    }
+
+    80% {
+        opacity: 1;
+    }
+
+    100% {
+        top: 100%;
+        opacity: 0;
+    }
 }
 
 .animate-scan-line {
@@ -268,8 +311,17 @@ body, html {
 
 /* Breathing & Glowing Icon Animation */
 @keyframes shield-breathe {
-    0%, 100% { filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.4)); transform: scale(1); }
-    50% { filter: drop-shadow(0 0 40px rgba(59, 130, 246, 0.8)); transform: scale(1.03); }
+
+    0%,
+    100% {
+        filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.4));
+        transform: scale(1);
+    }
+
+    50% {
+        filter: drop-shadow(0 0 40px rgba(59, 130, 246, 0.8));
+        transform: scale(1.03);
+    }
 }
 
 #shield-icon {
@@ -281,10 +333,10 @@ body, html {
 .shield-hide {
     opacity: 0 !important;
     visibility: hidden !important;
-    transform: scale(1.05); 
-    transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), 
-                transform 0.8s cubic-bezier(0.4, 0, 0.2, 1),
-                visibility 0.8s !important;
+    transform: scale(1.05);
+    transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+        transform 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+        visibility 0.8s !important;
 }
 
 /* Deepens the blur effect for older mobile browsers */
@@ -311,19 +363,24 @@ nav a:hover div {
 }
 
 /* Reduce brightness of pulse rings */
-.sos-pulse-1, .sos-pulse-2 {
+.sos-pulse-1,
+.sos-pulse-2 {
     position: absolute;
     width: 100%;
     height: 100%;
-    background: #ff4b5c; /* Using hex for precise color control */
+    background: #ff4b5c;
+    /* Using hex for precise color control */
     border-radius: 50%;
     /* Keep it subtle */
-    opacity: 0.15; 
+    opacity: 0.15;
     animation: sos-ripple 3s infinite;
     pointer-events: none;
 }
 
-.sos-pulse-2 { animation-delay: 1.5s; opacity: 0.05; }
+.sos-pulse-2 {
+    animation-delay: 1.5s;
+    opacity: 0.05;
+}
 
 /* Override the Red Bar brightness if it's a specific gradient */
 .btn-sos-main {
@@ -338,6 +395,27 @@ nav a:hover div {
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes badge-glow {
+
+    0%,
+    100% {
+        box-shadow: 0 0 5px rgba(59, 130, 246, 0.2);
+    }
+
+    50% {
+        box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+    }
+}
+
+.bg-blue-600\/20 {
+    animation: badge-glow 3s infinite ease-in-out;
 }
